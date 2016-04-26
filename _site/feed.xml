@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>YuHuo</title>
+    <description>这里是 @YuHuo 的个人博客，与你一起发现更大的世界。</description>
+    <link>http://desireall.github.io/</link>
+    <atom:link href="http://desireall.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Tue, 26 Apr 2016 17:20:34 +0000</pubDate>
+    <lastBuildDate>Tue, 26 Apr 2016 17:20:34 +0000</lastBuildDate>
+    <generator>Jekyll v3.1.3</generator>
+    
+      <item>
+        <title>mysql load data infile</title>
+        <description>&lt;h2 id=&quot;section&quot;&gt;前言&lt;/h2&gt;
+
+&lt;p&gt;把文件数据导入数据库&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;使用&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;load data infile&lt;/strong&gt; 语句从一个文本文件中以很高的速度读入一个表中。使用这个命令之前，mysqld进程（服务）必须已经在运行。为了安全原因，当读取位于服务器上的文本文件时，文件必须处于数据库目录或可被所有人读取。另外，为了对服务器上文件使用load data infile，在服务器主机上你必须有file的权限。&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;基本语法&lt;/h4&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;load data [low_priority][local] infile &#39;file_name txt&#39; [replace|ignore]  
+into table tbl_name  
+[fields [terminated by &#39;t&#39;] [OPTIONALLY] enclosed by &#39;&#39;] [escaped by &#39;\&#39;]]  
+[lines terminated by &#39;n&#39;] [ignore number lines] [(col_name,   )]  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h4 id=&quot;section-3&quot;&gt;注意&lt;/h4&gt;
+
+&lt;p&gt;1  如果你指定关键词&lt;code class=&quot;highlighter-rouge&quot;&gt;low_priority&lt;/code&gt;，那么MySQL将会等到没有其他人读这个表的时候，才把插入数据。可以使用如下的命令：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;load data  low_priority infile &quot;/home/mark/data sql&quot; into table Orders;  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;2  如果指定&lt;code class=&quot;highlighter-rouge&quot;&gt;local&lt;/code&gt;关键词，则表明从客户主机读文件。如果local没指定，文件必须位于服务器上。&lt;/p&gt;
+
+&lt;p&gt;3  &lt;code class=&quot;highlighter-rouge&quot;&gt;replace&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;ignore&lt;/code&gt;关键词控制对现有的唯一键记录的重复的处理。如果你指定replace，新行将代替有相同的唯一键值的现有行。如果你指定ignore，跳过有唯一键的现有行的重复行的输入。如果你不指定任何一个选项，当找到重复键时，出现一个错误，并且文本文件的余下部分被忽略。例如：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;load data  low_priority infile &quot;/home/mark/data sql&quot; replace into table Orders;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;4 分隔符&lt;/p&gt;
+
+&lt;p&gt;(1) &lt;code class=&quot;highlighter-rouge&quot;&gt;fields&lt;/code&gt;关键字指定了文件记段的分割格式，如果用到这个关键字，MySQL剖析器希望看到至少有下面的一个选项： &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;terminated by&lt;/code&gt;分隔符：意思是以什么字符作为分隔符&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;enclosed by&lt;/code&gt;字段括起字符&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;escaped by&lt;/code&gt;转义字符&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;terminated by&lt;/code&gt;描述字段的分隔符，默认情况下是tab字符（\t） &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;enclosed by&lt;/code&gt;描述的是字段的括起字符。&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;escaped by&lt;/code&gt;描述的转义字符。默认的是反斜杠（backslash：\ ）&lt;/p&gt;
+
+&lt;p&gt;例如：load data infile “/home/mark/Orders txt” replace into table Orders fields terminated by’,’ enclosed by ‘”’;&lt;/p&gt;
+
+&lt;p&gt;(2)&lt;code class=&quot;highlighter-rouge&quot;&gt;lines&lt;/code&gt; 关键字指定了每条记录的分隔符默认为’\n’即为换行符
+如果两个字段都指定了那fields必须在lines之前。如果不指定fields关键字缺省值与如果你这样写的相同： fields terminated by’\t’ enclosed by ’ ‘’ ‘ escaped by’\’
+如果你不指定一个lines子句，缺省值与如果你这样写的相同： lines terminated by’\n’
+例如：load data infile “/jiaoben/load.txt” replace into table test fields terminated by ‘,’ lines terminated by ‘/n’;&lt;/p&gt;
+
+&lt;p&gt;5  load data infile 可以按指定的列把文件导入到数据库中。 当我们要把数据的一部分内容导入的时候，，需要加入一些栏目（列/字段/field）到MySQL数据库中，以适应一些额外的需要。比方说，我们要从Access数据库升级到MySQL数据库的时候
+下面的例子显示了如何向指定的栏目(field)中导入数据： 
+load data infile “/home/Order txt” into table Orders(Order_Number, Order_Date, Customer_ID);&lt;/p&gt;
+
+&lt;p&gt;6  当在服务器主机上寻找文件时，服务器使用下列规则： 
+*（1）如果给出一个绝对路径名，服务器使用该路径名。 
+*（2）如果给出一个有一个或多个前置部件的相对路径名，服务器相对服务器的数据目录搜索文件。&lt;br /&gt;
+*（3）如果给出一个没有前置部件的一个文件名，服务器在当前数据库的数据库目录寻找文件。 
+例如： /myfile txt”给出的文件是从服务器的数据目录读取，而作为“myfile txt”给出的一个文件是从当前数据库的数据库目录下读取。&lt;/p&gt;
+
+&lt;h2 id=&quot;section-4&quot;&gt;场景&lt;/h2&gt;
+
+&lt;p&gt;在windows环境下，向数据库中批量导入文本文件数据&lt;/p&gt;
+
+&lt;p&gt;1.生成批量导入sql语句&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;for /r %i in (*.log) do (echo  load data infile &quot;C:/Users/Administrator/Desktop/chip/%~ni.log&quot; into table wish_cost_chip_log  fields terminated by &#39;,&#39; lines terminated by &#39;\n&#39;; &amp;gt;&amp;gt;  load.sql)  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;生成 load.sql 中的语句格式如下&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;load data infile &quot;C:/Users/Administrator/Desktop/chip/2016-03-28.log&quot; into table wish_cost_chip_log  fields terminated by &#39;,&#39; lines terminated by &#39;\n&#39;; 
+load data infile &quot;C:/Users/Administrator/Desktop/chip/2016-03-29.log&quot; into table wish_cost_chip_log  fields terminated by &#39;,&#39; lines terminated by &#39;\n&#39;; 
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;dos环境下的&lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; 语句的使用 详见 &lt;a href=&quot;./&quot;&gt;dos下的for语句&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;2.使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;mysql source [sql文件]&lt;/code&gt; 导入数据&lt;/p&gt;
+</description>
+        <pubDate>Mon, 18 Apr 2016 12:00:00 +0000</pubDate>
+        <link>http://desireall.github.io/2016/04/18/mysql-load-data-infile/</link>
+        <guid isPermaLink="true">http://desireall.github.io/2016/04/18/mysql-load-data-infile/</guid>
+        
+        <category>mysql</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

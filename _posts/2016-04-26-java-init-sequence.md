@@ -2,7 +2,7 @@
 layout:     post
 title : "java 类中初始化顺序"
 subtitle:   "\" \""
-date:       2016-04-27 12:00:00
+date:       2016-04-26 12:00:00
 author:     "YuHuo"
 header-img: "img/post-bg-digital-native.jpg"
 catalog: true

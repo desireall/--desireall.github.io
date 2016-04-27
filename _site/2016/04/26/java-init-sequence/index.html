@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <!-- <meta name="google-site-verification" content="XXXXXXXXXXXXXXXXXX" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="这里是 @YuHuo 的个人博客，与你一起发现更大的世界。">
+    <meta name="keyword"  content="YuHuo">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>java 类中初始化顺序 - YuHuo的博客 | YuHuo Blog</title>
+
+    <link rel="canonical" href="http://desireall.github.io/2016/04/26/java-init-sequence/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/yuhuo-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">YuHuo</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-digital-native.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-digital-native.jpg')
+    }
+
+    
+</style>
+<header class="intro-header" >
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#java" title="java">java</a>
+                        
+                    </div>
+                    <h1>java 类中初始化顺序</h1>
+                    
+                    
+                    <h2 class="subheading">" "</h2>
+                    
+                    <span class="meta">Posted by YuHuo on April 26, 2016</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<p>Java中类成员初始化顺序，十分基础但同时也是容易出错的地方。现根据《Thinking in Java》相关章节及自己的理解举例来说明类初始化顺序。</p>
+
+<h2 id="section">单一对象的初始化</h2>
+
+<p>废话先不说，先上一段代码：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">Student</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">defaultAge</span><span class="o">();</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">defaultHeight</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="n">Student</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"construct "</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">age</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">defaultAge</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">age</span> <span class="o">+</span> <span class="s">" defaultAge"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">10</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"non-static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">defaultHeight</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">height</span> <span class="o">+</span> <span class="s">" defaultHeight"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">170</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">InitOrder</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="n">Student</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>  
+
+</code></pre>
+</div>
+
+<p>上面这一小段程序的输出顺序为：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0 defaultHeight
+static block
+0 defaultAge
+non-static block
+construct 10
+</code></pre>
+</div>
+
+<p>从输出的第一行可以看出，static的height变量在被defaultHeight()赋值前已经有了初始值，我这里称这一步为<strong>默认初始化</strong>这一点非常重要，所有的成员变量（不论是不是static的）在声明时如果显式进行了赋值，那么这个成员变量至少会被初始化两次，一次是编译器自动的初始化（基本类型像int、false初始化为0、false，对象初始化为null）也就是默认初始化，然后是<strong>显式初始化</strong>。</p>
+
+<p>对于输出的其他行，大家应该没什么大问题，两大基本原则就是：</p>
+
+<p><strong>1.有static先初始化static，然后是非static的</strong><br />
+<strong>2.显式初始化（如果有的话），构造块初始化（如果有的话），最后调用构造函数进行初始化</strong></p>
+
+<p>《Thinking in java》中总结创建对象时成员的初始化过程（以一个Dog.java类为例）：</p>
+
+<p>1.首先需要明确的是，虽然构造函数没有显式用static声明，但所以类的构造函数都是static的<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>。所以当第一次创建Dog对象或者访问Dog类中的static方法/成员，JVM必须通过classpath定位Dog.class文件。</p>
+
+<p>2.当在classpath中找到Dog.class文件时JVM会进行加载，这时Dog类会对static相关部分（包括static成员变量与static块）进行默认初始化，而且也<code class="highlighter-rouge">仅会执行这一次</code>。</p>
+
+<p>3.当我们用new Dog()创建Dog对象时，JVM会在heap上为其分配空间（由此可以看出类的static成员并不再这个类对象的heap中，我理解的应该在一个全局区的heap上）。</p>
+
+<p>4.在为heap上的非static成员分配空间的同时按照其类型进行默认初始化（我这里这么理解的，在为成员变量分配空间时会按照其类型进行第一次初始化，如果不进行默认初始化，分配的空间的值是随机的，有点类型c语言中的野指针问题）。</p>
+
+<p>5.如果成员变量被显式赋值过，现在进行显式初始化。</p>
+
+<p>6.执行构造函数。</p>
+
+<p>上面这6步大家务必好好理解，下面以阿里巴巴2014校招笔试题来练手，看看大家是否真正理解：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Alibaba</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t1"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t2"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"i"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">99</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"j"</span><span class="o">);</span>
+    <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"构造块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"静态块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="n">Alibaba</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">print</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[])</span> <span class="o">{</span>
+        <span class="n">Alibaba</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"init"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>我当时看到这个题，就觉得与阿里无缘了。 囧</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1:j   i=0    n=0
+2:构造块   i=1    n=1
+3:t1   i=2    n=2
+4:j   i=3    n=3
+5:构造块   i=4    n=4
+6:t2   i=5    n=5
+7:i   i=6    n=6
+8:静态块   i=7    n=99
+9:j   i=8    n=100
+10:构造块   i=9    n=101
+11:init   i=10    n=102
+</code></pre>
+</div>
+
+<p>上面是程序的输出结果，下面我来一行行分析之。</p>
+
+<p>1.我们要调用Alibaba类的static方法main，所以JVM会在classpath中加载Alibaba.class，然后对所有static的成员变量进行默认初始化。这时k、i、n被赋值为0，t1、t2被赋值为null。</p>
+
+<p>2.又因为static变量被显式赋值了，所以进行显式初始化，当对t1进行显式赋值时，用new的方法调用了Alibaba的构造函数，所以这次需要对t1对象进行初始化。因为Alibaba所有static部分已经在第一步中初始化过了（虽然第一步中还没有执行static块，但在初始化t1时也不会去执行static块，因为JVM认为这次是第二次加载Alibaba这个类了，所有的static部分都会被忽略掉），所以这次直接初始化非static部分。于是有了输出</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1:j   i=0    n=0
+2:构造块   i=1    n=1
+3:t1   i=2    n=2
+</code></pre>
+</div>
+
+<p>接着对t2进行赋值，过程与t1相同</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>4:j   i=3    n=3
+5:构造块   i=4    n=4
+6:t2   i=5    n=5
+</code></pre>
+</div>
+
+<p>t1、t2这两个static成员变量赋值完后到了static的i与n，于是有了下面的输出：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>7:i   i=6    n=6
+</code></pre>
+</div>
+
+<p>到现在为止，所有的static的成员变量已经被第二次赋值过了，下面到static块了</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>8:静态块   i=7    n=99
+</code></pre>
+</div>
+
+<p>至此，所有的static部分赋值完毕了，下面开始执行main方法里面的内容，因为main方法的第一行就又用new的方式调用了Alibaba的构造函数，所以其过程与t1、t2类似</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>9:j   i=8    n=100
+10:构造块   i=9    n=101
+11:init   i=10    n=102
+</code></pre>
+</div>
+
+<p>经过上面这6步，Alibaba这个类的初始化过程就完全结束了。
+真心觉得一些基础概念掌握的太不牢固了，阿里巴巴这个面试题出个太好不过了，让我意识到了自己的技术的肤浅。以后需要恶补。</p>
+
+<h2 id="section-1">带有继承关系的对象初始化</h2>
+
+<p>上面介绍了单个对象的初始化顺序，有了这些基础下面在看个带有继承关系的类的初始化过程：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">Insect</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">9</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="kt">int</span> <span class="n">j</span><span class="o">;</span>
+    <span class="n">Insect</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"i = "</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">" j = "</span> <span class="o">+</span> <span class="n">j</span><span class="o">);</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">39</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">printInit</span><span class="o">(</span><span class="s">"static Insect.x1 initialized"</span><span class="o">);;</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">printInit</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">47</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Beetle</span> <span class="kd">extends</span> <span class="n">Insect</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">printInit</span><span class="o">(</span><span class="s">"Beetle.k initialized"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="n">Beetle</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"k = "</span> <span class="o">+</span> <span class="n">k</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"j = "</span> <span class="o">+</span> <span class="n">j</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">printInit</span><span class="o">(</span><span class="s">"static Beetle.x2 initialized"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Beetle constructor"</span><span class="o">);</span>
+        <span class="n">Beetle</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Beetle</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>当初始化的对象具有继承关系时，也是遵循单一对象初始化时的两大原则的。只不过在考虑static部分，非static部分时需要把子类与父类结合起来整体来看。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>static Insect.x1 initialized
+static Beetle.x2 initialized
+Beetle constructor
+i = 9 j = 0
+Beetle.k initialized
+k = 47
+j = 39
+</code></pre>
+</div>
+
+<p>上面是程序的输出，在初始化子类时，需要把父类的相关成分先初始化好，比如要想初始化子类的static部分，必须先初始化父类的static部分，其他的也没什么特别的了。输出的具体过程我这里也就不再赘述了。</p>
+
+<hr />
+
+<ul>
+  <li>转载自 <a href="http://liujiacai.net/blog/2014/07/12/order-of-initialization-in-java/">keep writing code</a></li>
+</ul>
+<div class="footnotes">
+  <ol>
+    <li id="fn:1">
+      <p>这里好像和我上面说的两大基本原则矛盾，不是说最后执行构造函数，请注意这里的构造函数必须与new来搭配使用，也就是说我们不能在程序中像普通函数调用那样直接使用 Dog()  的这种方式来调用Dog的构造函数，编译器会报找不到Dog()这个方法的错误，这里可能是java中对new进行了特殊处理，使得身为static的构造函数，在初始化阶段的最后执行。 <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+                <hr>
+
+                
+                <!-- 多说 Share start -->
+                </style>
+                <div class="ds-share"
+                    style="text-align: right"
+                    data-thread-key="/2016/04/26/java-init-sequence"
+                    data-title="java 类中初始化顺序"
+                    data-url="http://desireall.github.io/2016/04/26/java-init-sequence/"
+                    data-images="http://desireall.github.io/img/post-bg-digital-native.jpg"
+                    data-content="Java中类成员初始化顺序，十分基础但同时也是容易出错的地方。现根据《Thinking in Java》相关章节及自己的理解举例来说明类初始化顺序。
+
+单... | YuHuo的博客 | YuHuo Blog " >
+                    <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul>
+                      <div class="ds-share-icons-more">
+                      </div>
+                    </div>
+                <hr>
+                </div>
+                <!-- 多说 Share end-->
+                
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2016/04/18/mysql-load-data-infile/" data-toggle="tooltip" data-placement="top" title="mysql load data infile">
+                        Previous<br>
+                        <span>mysql load data infile</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+
+
+                
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread"
+                        data-thread-key="/2016/04/26/java-init-sequence"
+                        data-title="java 类中初始化顺序"
+                        data-url="http://desireall.github.io/2016/04/26/java-init-sequence/" >
+                    </div>
+                </div>
+                <!-- 多说评论框 end -->
+                
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://huangxuan.me/">黄玄的博客</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    // dynamic User by YuHuo
+    var _user = 'YuHuo';
+
+    // duoshuo comment query.
+    var duoshuoQuery = {short_name: _user };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by YuHuo, add target = "_blank" to <a> by YuHuo -->
+                    
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/desireall">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; YuHuo 2016
+                    <br>
+                    Theme by <a href="http://desireall.github.io">YuHuo</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="91px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=desireall&repo=desireall.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/hux-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- 
+     Because of the native support for backtick-style fenced code blocks 
+     right within the Markdown is landed in Github Pages, 
+     From V1.6, There is no need for Highlight.js, 
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by YuHuo
+    var _gaId = 'UA-76867140-1';
+    var _gaDomain = 'auto';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;    
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 0,
+            scrollThreshold: .2,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            padding: 80
+        });
+    });
+</script>
+
+
+
+
+
+<!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0" /> -->
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

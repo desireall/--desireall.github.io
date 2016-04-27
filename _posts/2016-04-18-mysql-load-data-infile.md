@@ -1,6 +1,6 @@
 ---
 layout:     post
-title : "mysql load data infile"
+title : "load data infile"
 subtitle:   " \"从文件向数据库中导入数据\""
 date:       2016-04-18 12:00:00
 author:     "YuHuo"

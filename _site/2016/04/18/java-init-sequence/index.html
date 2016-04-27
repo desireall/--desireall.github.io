@@ -10,9 +10,9 @@
     <meta name="keyword"  content="YuHuo">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>mysql load data infile - YuHuo的博客 | YuHuo Blog</title>
+    <title>java 类中初始化顺序 - YuHuo的博客 | YuHuo Blog</title>
 
-    <link rel="canonical" href="http://desireall.github.io/2016/04/18/mysql-load-data-infile/">
+    <link rel="canonical" href="http://desireall.github.io/2016/04/18/java-init-sequence/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -144,13 +144,13 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-digital-native.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
         position: relative;
-        background-image: url('/img/post-bg-2015.jpg')
+        background-image: url('/img/post-bg-digital-native.jpg')
     }
 
     
@@ -163,13 +163,13 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#mysql" title="mysql">mysql</a>
+                        <a class="tag" href="/tags/#java" title="java">java</a>
                         
                     </div>
-                    <h1>mysql load data infile</h1>
+                    <h1>java 类中初始化顺序</h1>
                     
                     
-                    <h2 class="subheading"> "从文件向数据库中导入数据"</h2>
+                    <h2 class="subheading">" "</h2>
                     
                     <span class="meta">Posted by YuHuo on April 18, 2016</span>
                 </div>
@@ -189,101 +189,101 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-				<h2 id="section">前言</h2>
+				<p>Java中类成员初始化顺序，十分基础但同时也是容易出错的地方。现根据《Thinking in Java》相关章节及自己的理解举例来说明类初始化顺序。</p>
 
-<p>把文件数据导入数据库</p>
+<h2 id="section">（一）单一对象的初始化</h2>
+
+<p>废话先不说，先上一段代码：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">Student</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">defaultAge</span><span class="o">();</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">defaultHeight</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="n">Student</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"construct "</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">age</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">defaultAge</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">age</span> <span class="o">+</span> <span class="s">" defaultAge"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">10</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"non-static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">defaultHeight</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">height</span> <span class="o">+</span> <span class="s">" defaultHeight"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">170</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">InitOrder</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="n">Student</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>  
+
+</code></pre>
+</div>
+
+<p>上面这一小段程序的输出顺序为：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+0 defaultHeight
+static block
+0 defaultAge
+non-static block
+construct 10
+
+</code></pre>
+</div>
+
+<p>从输出的第一行可以看出，static的height变量在被defaultHeight()赋值前已经有了初始值，我这里称这一步为默认初始化这一点非常重要，所有的成员变量（不论是不是static的）在声明时如果显式进行了赋值，那么这个成员变量至少会被初始化两次，一次是编译器自动的初始化（基本类型像int、false初始化为0、false，对象初始化为null）也就是默认初始化，然后是<strong>显式初始化</strong>。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Alibaba</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t1"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t2"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"i"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">99</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"j"</span><span class="o">);</span>
+    <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"构造块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"静态块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="n">Alibaba</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">print</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[])</span> <span class="o">{</span>
+        <span class="n">Alibaba</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"init"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>对于输出的其他行，大家应该没什么大问题，两大基本原则就是：</p>
+
+<p><strong>1.有static先初始化static，然后是非static的</strong><br />
+<strong>2.显式初始化（如果有的话），构造块初始化（如果有的话），最后调用构造函数进行初始化</strong></p>
 
 <hr />
 
-<h2 id="section-1">使用</h2>
+<p>转载自 <a href="http://liujiacai.net/blog/2014/07/12/order-of-initialization-in-java/">keep writing code</a></p>
 
-<p><strong>load data infile</strong> 语句从一个文本文件中以很高的速度读入一个表中。使用这个命令之前，mysqld进程（服务）必须已经在运行。为了安全原因，当读取位于服务器上的文本文件时，文件必须处于数据库目录或可被所有人读取。另外，为了对服务器上文件使用load data infile，在服务器主机上你必须有file的权限。</p>
-
-<h4 id="section-2">基本语法</h4>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data [low_priority][local] infile 'file_name txt' [replace|ignore]  
-into table tbl_name  
-[fields [terminated by 't'] [OPTIONALLY] enclosed by ''] [escaped by '\']]  
-[lines terminated by 'n'] [ignore number lines] 
-[(col_name,   )]  
-</code></pre>
-</div>
-
-<h4 id="section-3">注意</h4>
-
-<p>1  如果你指定关键词<code class="highlighter-rouge">low_priority</code>，那么MySQL将会等到没有其他人读这个表的时候，才把插入数据。可以使用如下的命令：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data  low_priority infile "/home/mark/data sql" into table Orders;  
-</code></pre>
-</div>
-
-<p>2  如果指定<code class="highlighter-rouge">local</code>关键词，则表明从客户主机读文件。如果local没指定，文件必须位于服务器上。</p>
-
-<p>3  <code class="highlighter-rouge">replace</code>和<code class="highlighter-rouge">ignore</code>关键词控制对现有的唯一键记录的重复的处理。如果你指定replace，新行将代替有相同的唯一键值的现有行。如果你指定ignore，跳过有唯一键的现有行的重复行的输入。如果你不指定任何一个选项，当找到重复键时，出现一个错误，并且文本文件的余下部分被忽略。例如：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data  low_priority infile "/home/mark/data sql" replace into table Orders;
-</code></pre>
-</div>
-
-<p>4 分隔符</p>
-
-<p>(1) <code class="highlighter-rouge">fields</code>关键字指定了文件记段的分割格式，如果用到这个关键字，MySQL剖析器希望看到至少有下面的一个选项： <br />
-<code class="highlighter-rouge">terminated by</code>分隔符：意思是以什么字符作为分隔符<br />
-<code class="highlighter-rouge">enclosed by</code>字段括起字符<br />
-<code class="highlighter-rouge">escaped by</code>转义字符<br />
-<code class="highlighter-rouge">terminated by</code>描述字段的分隔符，默认情况下是tab字符（\t） <br />
-<code class="highlighter-rouge">enclosed by</code>描述的是字段的括起字符。<br />
-<code class="highlighter-rouge">escaped by</code>描述的转义字符。默认的是反斜杠（backslash：\ ）</p>
-
-<p>例如：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data infile "/home/mark/Orders txt" replace into table Orders fields terminated by',' enclosed by '"';  
-</code></pre>
-</div>
-
-<p>(2)<code class="highlighter-rouge">lines</code> 关键字指定了每条记录的分隔符默认为’\n’即为换行符
-如果两个字段都指定了那fields必须在lines之前。如果不指定fields关键字缺省值与如果你这样写的相同： fields terminated by’\t’ enclosed by ’ ‘’ ‘ escaped by’\’
-如果你不指定一个lines子句，缺省值与如果你这样写的相同： lines terminated by’\n’
-例如：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data infile "/jiaoben/load.txt" replace into table test fields terminated by ',' lines terminated by '/n';  
-</code></pre>
-</div>
-
-<p>5  <code class="highlighter-rouge">(col_name,   )</code> 按指定的列把文件导入到数据库中. 当我们要把数据的一部分内容导入的时候,需要加入一些栏目（列/字段/field）到MySQL数据库中，以适应一些额外的需要。比方说，我们要从Access数据库升级到MySQL数据库的时候
-下面的例子显示了如何向指定的栏目(field)中导入数据：</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data infile "/home/Order txt" into table Orders(Order_Number, Order_Date, Customer_ID);  
-</code></pre>
-</div>
-
-<p>6  当在服务器主机上寻找文件时，服务器使用下列规则： 
-&gt; *（1）如果给出一个绝对路径名，服务器使用该路径名。 
-&gt; *（2）如果给出一个有一个或多个前置部件的相对路径名，服务器相对服务器的数据目录搜索文件。<br />
-&gt; *（3）如果给出一个没有前置部件的一个文件名，服务器在当前数据库的数据库目录寻找文件。 
-例如： /myfile txt”给出的文件是从服务器的数据目录读取，而作为“myfile txt”给出的一个文件是从当前数据库的数据库目录下读取。</p>
-
-<h2 id="section-4">场景</h2>
-
-<p>在windows环境下，向数据库中批量导入文本文件数据</p>
-
-<p>1.生成批量导入sql语句</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>for /r %i in (*.log) do (echo  load data infile "C:/Users/Administrator/Desktop/chip/%~ni.log" into table wish_cost_chip_log  fields terminated by ',' lines terminated by '\n'; &gt;&gt;  load.sql)  
-</code></pre>
-</div>
-
-<p>生成 load.sql 中的语句格式如下</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>load data infile "C:/Users/Administrator/Desktop/chip/2016-03-28.log" into table wish_cost_chip_log  fields terminated by ',' lines terminated by '\n'; 
-load data infile "C:/Users/Administrator/Desktop/chip/2016-03-29.log" into table wish_cost_chip_log  fields terminated by ',' lines terminated by '\n'; 
-...
-</code></pre>
-</div>
-
-<p>dos环境下的<code class="highlighter-rouge">for</code> 语句的使用 详见 <a href="./">dos下的for语句</a></p>
-
-<p>2.使用 <code class="highlighter-rouge">mysql source [sql文件]</code> 导入数据</p>
+<hr />
 
 
                 <hr>
@@ -293,19 +293,13 @@ load data infile "C:/Users/Administrator/Desktop/chip/2016-03-29.log" into table
                 </style>
                 <div class="ds-share"
                     style="text-align: right"
-                    data-thread-key="/2016/04/18/mysql-load-data-infile"
-                    data-title="mysql load data infile"
-                    data-url="http://desireall.github.io/2016/04/18/mysql-load-data-infile/"
-                    data-images="http://desireall.github.io/img/post-bg-2015.jpg"
-                    data-content="前言
+                    data-thread-key="/2016/04/18/java-init-sequence"
+                    data-title="java 类中初始化顺序"
+                    data-url="http://desireall.github.io/2016/04/18/java-init-sequence/"
+                    data-images="http://desireall.github.io/img/post-bg-digital-native.jpg"
+                    data-content="Java中类成员初始化顺序，十分基础但同时也是容易出错的地方。现根据《Thinking in Java》相关章节及自己的理解举例来说明类初始化顺序。
 
-把文件数据导入数据库
-
-
-
-使用
-
-load data infile 语句从一个文本文件中以很高的速度读入一个表中。使用这个命令之前，mysqld... | YuHuo的博客 | YuHuo Blog " >
+（... | YuHuo的博客 | YuHuo Blog " >
                     <div class="ds-share-inline">
                       <ul  class="ds-share-icons-16">
                         <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
@@ -324,13 +318,13 @@ load data infile 语句从一个文本文件中以很高的速度读入一个表
 
                 <ul class="pager">
                     
-                    
-                    <li class="next">
-                        <a href="/2016/04/27/java-init-sequence/" data-toggle="tooltip" data-placement="top" title="java 类中初始化顺序">
-                        Next<br>
-                        <span>java 类中初始化顺序</span>
+                    <li class="previous">
+                        <a href="/2016/04/18/mysql-load-data-infile/" data-toggle="tooltip" data-placement="top" title="mysql load data infile">
+                        Previous<br>
+                        <span>mysql load data infile</span>
                         </a>
                     </li>
+                    
                     
                 </ul>
 
@@ -339,9 +333,9 @@ load data infile 语句从一个文本文件中以很高的速度读入一个表
                 <!-- 多说评论框 start -->
                 <div class="comment">
                     <div class="ds-thread"
-                        data-thread-key="/2016/04/18/mysql-load-data-infile"
-                        data-title="mysql load data infile"
-                        data-url="http://desireall.github.io/2016/04/18/mysql-load-data-infile/" >
+                        data-thread-key="/2016/04/18/java-init-sequence"
+                        data-title="java 类中初始化顺序"
+                        data-url="http://desireall.github.io/2016/04/18/java-init-sequence/" >
                     </div>
                 </div>
                 <!-- 多说评论框 end -->

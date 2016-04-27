@@ -1,0 +1,95 @@
+<p>Java中类成员初始化顺序，十分基础但同时也是容易出错的地方。现根据《Thinking in Java》相关章节及自己的理解举例来说明类初始化顺序。</p>
+
+<h2 id="section">（一）单一对象的初始化</h2>
+
+<p>废话先不说，先上一段代码：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">class</span> <span class="nc">Student</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="n">defaultAge</span><span class="o">();</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">defaultHeight</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="n">Student</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"construct "</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">age</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">defaultAge</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">age</span> <span class="o">+</span> <span class="s">" defaultAge"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">10</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"non-static block"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="kt">int</span> <span class="n">defaultHeight</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">height</span> <span class="o">+</span> <span class="s">" defaultHeight"</span><span class="o">);</span>
+        <span class="k">return</span> <span class="mi">170</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">InitOrder</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">new</span> <span class="n">Student</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>  
+
+</code></pre>
+</div>
+
+<p>上面这一小段程序的输出顺序为：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+0 defaultHeight
+static block
+0 defaultAge
+non-static block
+construct 10
+
+</code></pre>
+</div>
+
+<p>从输出的第一行可以看出，static的height变量在被defaultHeight()赋值前已经有了初始值，我这里称这一步为默认初始化这一点非常重要，所有的成员变量（不论是不是static的）在声明时如果显式进行了赋值，那么这个成员变量至少会被初始化两次，一次是编译器自动的初始化（基本类型像int、false初始化为0、false，对象初始化为null）也就是默认初始化，然后是<strong>显式初始化</strong>。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Alibaba</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t1"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Alibaba</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"t2"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"i"</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">99</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">print</span><span class="o">(</span><span class="s">"j"</span><span class="o">);</span>
+    <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"构造块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"静态块"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="n">Alibaba</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">print</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((++</span><span class="n">k</span><span class="o">)</span> <span class="o">+</span> <span class="s">":"</span> <span class="o">+</span> <span class="n">str</span> <span class="o">+</span> <span class="s">"   i="</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="s">"    n="</span> <span class="o">+</span> <span class="n">n</span><span class="o">);</span>
+        <span class="o">++</span><span class="n">n</span><span class="o">;</span>
+        <span class="k">return</span> <span class="o">++</span><span class="n">i</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[])</span> <span class="o">{</span>
+        <span class="n">Alibaba</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Alibaba</span><span class="o">(</span><span class="s">"init"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>对于输出的其他行，大家应该没什么大问题，两大基本原则就是：</p>
+
+<p><strong>1.有static先初始化static，然后是非static的</strong><br />
+<strong>2.显式初始化（如果有的话），构造块初始化（如果有的话），最后调用构造函数进行初始化</strong></p>
+
+<hr />
+
+<p>转载自 <a href="http://liujiacai.net/blog/2014/07/12/order-of-initialization-in-java/">keep writing code</a></p>
+
+<hr />

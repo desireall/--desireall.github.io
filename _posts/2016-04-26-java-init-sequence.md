@@ -244,3 +244,62 @@ j = 39
 
 
  - 转载自 [keep writing code](http://liujiacai.net/blog/2014/07/12/order-of-initialization-in-java/)
+
+
+
+
+~~~ java 
+
+public class Dervied extends Base {  
+    private  String name = "dervied";  
+//    private static  String name = "dervied";  
+    
+    public ClassInit() {  
+        tellName();  
+        printName();  
+    }  
+
+    public void tellName() {  
+        System.out.println("Dervied tell name: " + name);  
+    }  
+      
+    public void printName() {  
+        System.out.println("Dervied print name: " + name);  
+    }  
+  
+    public static void main(String[] args){  
+          
+        new Dervied();      
+    }  
+}  
+  
+class Base {  
+      
+    private String name = "base";  
+  
+    public Base() {  
+        tellName();  
+        printName();  
+    }  
+      
+    public void tellName() {  
+        System.out.println("Base tell name: " + name);  
+    }  
+      
+    public void printName() {  
+        System.out.println("Base print name: " + name);  
+    }  
+}
+~~~
+
+上面例子的运行结果
+
+~~~ java 
+Dervied tell name: null
+Dervied print name: null
+Dervied tell name: dervied
+Dervied print name: dervied
+~~~
+
+
+new Dervied();这行代码执行的时候，先初始化父类但是执行到父类的tellName()的时候，子类把这个方法覆盖了，所以执行的是子类的tellName()代码，但是执行子类的方法的时候子类对象还没有被创建，所以子类的dname是空，可以换static试试

@@ -407,6 +407,61 @@ j = 39
 <ul>
   <li>转载自 <a href="http://liujiacai.net/blog/2014/07/12/order-of-initialization-in-java/">keep writing code</a></li>
 </ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Dervied</span> <span class="kd">extends</span> <span class="n">Base</span> <span class="o">{</span>  
+    <span class="kd">private</span>  <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"dervied"</span><span class="o">;</span>  
+<span class="c1">//    private static  String name = "dervied";  </span>
+    
+    <span class="kd">public</span> <span class="n">ClassInit</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">tellName</span><span class="o">();</span>  
+        <span class="n">printName</span><span class="o">();</span>  
+    <span class="o">}</span>  
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">tellName</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Dervied tell name: "</span> <span class="o">+</span> <span class="n">name</span><span class="o">);</span>  
+    <span class="o">}</span>  
+      
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">printName</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Dervied print name: "</span> <span class="o">+</span> <span class="n">name</span><span class="o">);</span>  
+    <span class="o">}</span>  
+  
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">){</span>  
+          
+        <span class="k">new</span> <span class="n">Dervied</span><span class="o">();</span>      
+    <span class="o">}</span>  
+<span class="o">}</span>  
+  
+<span class="kd">class</span> <span class="nc">Base</span> <span class="o">{</span>  
+      
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"base"</span><span class="o">;</span>  
+  
+    <span class="kd">public</span> <span class="n">Base</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">tellName</span><span class="o">();</span>  
+        <span class="n">printName</span><span class="o">();</span>  
+    <span class="o">}</span>  
+      
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">tellName</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base tell name: "</span> <span class="o">+</span> <span class="n">name</span><span class="o">);</span>  
+    <span class="o">}</span>  
+      
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">printName</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Base print name: "</span> <span class="o">+</span> <span class="n">name</span><span class="o">);</span>  
+    <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>上面例子的运行结果</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">Dervied</span> <span class="n">tell</span> <span class="nl">name:</span> <span class="kc">null</span>
+<span class="n">Dervied</span> <span class="n">print</span> <span class="nl">name:</span> <span class="kc">null</span>
+<span class="n">Dervied</span> <span class="n">tell</span> <span class="nl">name:</span> <span class="n">dervied</span>
+<span class="n">Dervied</span> <span class="n">print</span> <span class="nl">name:</span> <span class="n">dervied</span>
+</code></pre>
+</div>
+
+<p>new Dervied();这行代码执行的时候，先初始化父类但是执行到父类的tellName()的时候，子类把这个方法覆盖了，所以执行的是子类的tellName()代码，但是执行子类的方法的时候子类对象还没有被创建，所以子类的dname是空，可以换static试试</p>
 <div class="footnotes">
   <ol>
     <li id="fn:1">

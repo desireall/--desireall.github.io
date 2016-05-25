@@ -4,7 +4,7 @@ title : "tomcat manager user"
 subtitle:   
 date:       2016-04-26 12:00:00
 author:     "YuHuo"
-header-img: "img/post-bg-digital-native.jpg"
+header-img: "img/post-bg-ios9-web.jpg"
 catalog: true
 tags:
     - tomcat

@@ -1,6 +1,6 @@
 ---
 layout:     post
-title : "java 类中初始化顺序"
+title : "java init sequence"
 subtitle:   "\" \""
 date:       2016-04-26 12:00:00
 author:     "YuHuo"

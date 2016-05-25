@@ -10,9 +10,9 @@
     <meta name="keyword"  content="YuHuo">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>tomcat manager user - YuHuo的博客 | YuHuo Blog</title>
+    <title>maven common commands - YuHuo的博客 | YuHuo Blog</title>
 
-    <link rel="canonical" href="http://desireall.github.io/2016/04/26/tomcat-manager-user/">
+    <link rel="canonical" href="http://desireall.github.io/2016/05/24/maven-common-commands/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -144,13 +144,13 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/post-bg-ios9-web.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-digital-native.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
         position: relative;
-        background-image: url('/img/post-bg-ios9-web.jpg')
+        background-image: url('/img/post-bg-digital-native.jpg')
     }
 
     
@@ -163,17 +163,15 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#tomcat" title="tomcat">tomcat</a>
-                        
-                        <a class="tag" href="/tags/#java" title="java">java</a>
+                        <a class="tag" href="/tags/#maven" title="maven">maven</a>
                         
                     </div>
-                    <h1>tomcat manager user</h1>
+                    <h1>maven common commands</h1>
                     
                     
                     <h2 class="subheading"></h2>
                     
-                    <span class="meta">Posted by YuHuo on April 26, 2016</span>
+                    <span class="meta">Posted by YuHuo on May 24, 2016</span>
                 </div>
             </div>
         </div>
@@ -191,36 +189,109 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-				<p>Tomcat Manager是Tomcat自带的、用于对Tomcat自身以及部署在Tomcat上的应用进行管理的web应用。Tomcat是Java领域使用最广泛的服务器之一，因此Tomcat Manager也成为了使用非常普遍的功能应用。</p>
+				<ol>
+  <li>创建Maven的普通java项目： 
+mvn archetype:create 
+-DgroupId=packageName 
+-DartifactId=projectName</li>
+  <li>创建Maven的Web项目： <br />
+ mvn archetype:create 
+ -DgroupId=packageName  <br />
+ -DartifactId=webappName 
+ -DarchetypeArtifactId=maven-archetype-webapp</li>
+  <li>编译源代码： mvn compile</li>
+  <li>编译测试代码：mvn test-compile</li>
+  <li>运行测试：mvn test</li>
+  <li>产生site：mvn site</li>
+  <li>打包：mvn package</li>
+  <li>在本地Repository中安装jar：mvn install</li>
+  <li>清除产生的项目：mvn clean</li>
+  <li>生成eclipse项目：mvn eclipse:eclipse</li>
+  <li>生成idea项目：mvn idea:idea</li>
+  <li>组合使用goal命令，如只打包不测试：mvn -Dtest package</li>
+  <li>编译测试的内容：mvn test-compile</li>
+  <li>只打jar包: mvn jar:jar</li>
+  <li>只测试而不编译，也不测试编译：mvn test -skipping compile -skipping test-compile 
+  ( -skipping 的灵活运用，当然也可以用于其他组合命令)</li>
+  <li>清除eclipse的一些系统设置:mvn eclipse:clean</li>
+</ol>
 
-<p>在默认情况下，Tomcat Manager是处于禁用状态的。准确地说，Tomcat Manager需要以用户角色进行登录并授权才能使用相应的功能，不过Tomcat并没有配置任何默认的用户，因此需要我们进行相应的用户配置之后才能使用Tomcat Manager。</p>
+<p>ps：</p>
 
-<p>Tomcat Manager的用户配置是在<code class="highlighter-rouge">Tomcat安装目录/conf/tomcat-users.xml</code>文件中进行管理的.下面我们以一个具体的配置为例：</p>
+<p>一般使用情况是这样，首先通过cvs或svn下载代码到本机，然后执行mvn eclipse:eclipse生成ecllipse项目文件，然后导入到eclipse就行了；修改代码后执行mvn compile或mvn test检验，也可以下载eclipse的maven插件。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tomcat-users&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"admin-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"admin-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"manager-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"manager-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;user</span> <span class="na">username=</span><span class="s">"tomcat"</span> <span class="na">password=</span><span class="s">"tomcat"</span> <span class="na">roles=</span><span class="s">"manager-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;user</span> <span class="na">username=</span><span class="s">"admin"</span> <span class="na">password=</span><span class="s">"admin"</span> <span class="na">roles=</span><span class="s">"manager-gui,manager-script,admin-gui,admin-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;/tomcat-users&gt;</span>
-</code></pre>
-</div>
+<p>mvn -version/-v               显示版本信息 
+mvn archetype:generate        创建mvn项目 
+mvn archetype:create -DgroupId=com.oreilly -DartifactId=my-app   创建mvn项目</p>
 
-<p>如上所示，我们只需要在tomcat-users节点中配置相应的role(角色/权限)和user(用户)即可。一个user节点表示单个用户，属性username和password分别表示登录的用户名和密码，属性roles表示该用户所具备的权限。</p>
+<p>mvn package              生成target目录，编译、测试代码，生成测试报告，生成jar/war文件 
+mvn jetty:run            运行项目于jetty上, 
+mvn compile              编译 
+mvn test                 编译并测试 
+mvn clean                清空生成的文件 
+mvn site                 生成项目相关信息的网站 
+mvn -Dwtpversion=1.0 eclipse:eclipse        生成Wtp插件的Web项目 
+mvn -Dwtpversion=1.0 eclipse:clean          清除Eclipse项目的配置信息(Web项目) 
+mvn eclipse:eclipse                         将项目转化为Eclipse项目</p>
 
-<p>user节点的roles属性值与role节点的rolename属性值相对应，表示当前用户具备该role节点所表示的角色权限。当然，一个用户可以具备多种权限，因此属性roles的值可以是多个rolename，多个rolename之间以英文逗号隔开即可。</p>
+<p>在应用程序用使用多个存储库</p>
+<repositories>    
+    <repository>      
+        <id>Ibiblio</id>      
+        <name>Ibiblio</name>      
+        <url>http://www.ibiblio.org/maven/</url>    
+    </repository>    
+    <repository>      
+        <id>PlanetMirror</id>      
+        <name>Planet Mirror</name>      
+        <url>http://public.planetmirror.com/pub/maven/</url>    
+    </repository>  
+</repositories>
 
-<p>稍加思考，我们就应该猜测到，rolename的属性值并不是随意的内容，否则Tomcat怎么能够知道我们随便定义的rolename表示什么样的权限呢。实际上，Tomcat已经为我们定义了4种不同的角色——也就是4个rolename，我们只需要使用Tomcat为我们定义的这几种角色就足够满足我们的工作需要了。</p>
+<p>mvn deploy:deploy-file -DgroupId=com -DartifactId=client -Dversion=0.1.0 -Dpackaging=jar -Dfile=d:\client-0.1.0.jar -DrepositoryId=maven-repository-inner -Durl=ftp://xxxxxxx/opt/maven/repository/</p>
 
-<p>你可以在<code class="highlighter-rouge">$CATALINA_BASE/webapps/manager/WEB-INF/web.xml</code>找到这些角色的名字.以下是Tomcat Manager 角色的大致介绍(下面URL中的*为通配符):</p>
+<p>发布第三方Jar到本地库中：</p>
 
-<p><code class="highlighter-rouge">manager-gui</code> 允许访问html接口(即URL路径为/manager/html/<em>) <br />
-<code class="highlighter-rouge">manager-script</code> 允许访问纯文本接口(即URL路径为/manager/text/</em>)<br />
-<code class="highlighter-rouge">manager-jmx</code> 允许访问JMX代理接口(即URL路径为/manager/jmxproxy/<em>)<br />
-<code class="highlighter-rouge">manager-status</code>允许访问Tomcat只读状态页面(即URL路径为/manager/status/</em>)<br />
-从Tomcat Manager内部配置文件中可以得知，manager-gui、manager-script、manager-jmx均具备manager-status的权限，也就是说，manager-gui、manager-script、manager-jmx三种角色权限无需再额外添加manager-status权限，即可直接访问路径/manager/status/*。</p>
+<p>mvn install:install-file -DgroupId=com -DartifactId=client -Dversion=0.1.0 -Dpackaging=jar -Dfile=d:\client-0.1.0.jar</p>
+
+<p>-DdownloadSources=true</p>
+
+<p>-DdownloadJavadocs=true</p>
+
+<p>mvn -e              显示详细错误 信息. 
+mvn validate        验证工程是否正确，所有需要的资源是否可用。 
+mvn test-compile    编译项目测试代码。 。 
+mvn integration-test     在集成测试可以运行的环境中处理和发布包。 
+mvn verify               运行任何检查，验证包是否有效且达到质量标准。   <br />
+mvn generate-sources     产生应用需要的任何额外的源代码，如xdoclet。</p>
+
+<p>常用命令： 
+mvn -v 显示版本 
+mvn help:describe -Dplugin=help 使用 help 插件的  describe 目标来输出 Maven Help 插件的信息。 
+mvn help:describe -Dplugin=help -Dfull 使用Help 插件输出完整的带有参数的目标列 
+mvn help:describe -Dplugin=compiler -Dmojo=compile -Dfull 获取单个目标的信息,设置  mojo 参数和  plugin 参数。此命令列出了Compiler 插件的compile 目标的所有信息 
+mvn help:describe -Dplugin=exec -Dfull 列出所有 Maven Exec 插件可用的目标 
+mvn help:effective-pom 看这个“有效的 (effective)”POM，它暴露了 Maven的默认设置</p>
+
+<p>mvn archetype:create -DgroupId=org.sonatype.mavenbook.ch03 -DartifactId=simple -DpackageName=org.sonatype.mavenbook 创建Maven的普通java项目，在命令行使用Maven Archetype 插件 
+mvn exec:java -Dexec.mainClass=org.sonatype.mavenbook.weather.Main Exec 插件让我们能够在不往 classpath 载入适当的依赖的情况下，运行这个程序 
+mvn dependency:resolve 打印出已解决依赖的列表 
+mvn dependency:tree 打印整个依赖树</p>
+
+<p>mvn install -X 想要查看完整的依赖踪迹，包含那些因为冲突或者其它原因而被拒绝引入的构件，打开 Maven 的调试标记运行 
+mvn install -Dmaven.test.skip=true 给任何目标添加maven.test.skip 属性就能跳过测试 
+mvn install assembly:assembly 构建装配Maven Assembly 插件是一个用来创建你应用程序特有分发包的插件</p>
+
+<p>mvn jetty:run     调用 Jetty 插件的 Run 目标在 Jetty Servlet 容器中启动 web 应用 
+mvn compile       编译你的项目 
+mvn clean install 删除再编译</p>
+
+<p>mvn hibernate3:hbm2ddl 使用 Hibernate3 插件构造数据库</p>
+
+<p>本文转载自：http://www.cnblogs.com/holly/archive/2013/06/15/3137041.html</p>
+
+<h2 id="section">未完待续</h2>
+<p>更新: 2016-05-24</p>
 
 
                 <hr>
@@ -230,11 +301,15 @@
                 </style>
                 <div class="ds-share"
                     style="text-align: right"
-                    data-thread-key="/2016/04/26/tomcat-manager-user"
-                    data-title="tomcat manager user"
-                    data-url="http://desireall.github.io/2016/04/26/tomcat-manager-user/"
-                    data-images="http://desireall.github.io/img/post-bg-ios9-web.jpg"
-                    data-content="Tomcat Manager是Tomcat自带的、用于对Tomcat自身以及部署在Tomcat上的应用进行管理的web应用。Tomcat是Java领域使用... | YuHuo的博客 | YuHuo Blog " >
+                    data-thread-key="/2016/05/24/maven-common-commands"
+                    data-title="maven common commands"
+                    data-url="http://desireall.github.io/2016/05/24/maven-common-commands/"
+                    data-images="http://desireall.github.io/img/post-bg-digital-native.jpg"
+                    data-content="
+  创建Maven的普通java项目： 
+mvn archetype:create 
+-DgroupId=packageName 
+-Dartifact... | YuHuo的博客 | YuHuo Blog " >
                     <div class="ds-share-inline">
                       <ul  class="ds-share-icons-16">
                         <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
@@ -254,19 +329,12 @@
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2016/04/26/java-init-sequence/" data-toggle="tooltip" data-placement="top" title="java init sequence">
-                        Previous<br>
-                        <span>java init sequence</span>
-                        </a>
-                    </li>
-                    
-                    
-                    <li class="next">
                         <a href="/2016/05/04/java-io/" data-toggle="tooltip" data-placement="top" title="java io">
-                        Next<br>
+                        Previous<br>
                         <span>java io</span>
                         </a>
                     </li>
+                    
                     
                 </ul>
 
@@ -275,9 +343,9 @@
                 <!-- 多说评论框 start -->
                 <div class="comment">
                     <div class="ds-thread"
-                        data-thread-key="/2016/04/26/tomcat-manager-user"
-                        data-title="tomcat manager user"
-                        data-url="http://desireall.github.io/2016/04/26/tomcat-manager-user/" >
+                        data-thread-key="/2016/05/24/maven-common-commands"
+                        data-title="maven common commands"
+                        data-url="http://desireall.github.io/2016/05/24/maven-common-commands/" >
                     </div>
                 </div>
                 <!-- 多说评论框 end -->

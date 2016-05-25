@@ -10,9 +10,9 @@
     <meta name="keyword"  content="YuHuo">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>tomcat manager user - YuHuo的博客 | YuHuo Blog</title>
+    <title>java io - YuHuo的博客 | YuHuo Blog</title>
 
-    <link rel="canonical" href="http://desireall.github.io/2016/04/26/tomcat-manager-user/">
+    <link rel="canonical" href="http://desireall.github.io/2016/05/04/java-io/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -144,13 +144,13 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/post-bg-ios9-web.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-digital-native.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
         position: relative;
-        background-image: url('/img/post-bg-ios9-web.jpg')
+        background-image: url('/img/post-bg-digital-native.jpg')
     }
 
     
@@ -163,17 +163,15 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#tomcat" title="tomcat">tomcat</a>
-                        
                         <a class="tag" href="/tags/#java" title="java">java</a>
                         
                     </div>
-                    <h1>tomcat manager user</h1>
+                    <h1>java io</h1>
                     
                     
                     <h2 class="subheading"></h2>
                     
-                    <span class="meta">Posted by YuHuo on April 26, 2016</span>
+                    <span class="meta">Posted by YuHuo on May 4, 2016</span>
                 </div>
             </div>
         </div>
@@ -191,36 +189,95 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-				<p>Tomcat Manager是Tomcat自带的、用于对Tomcat自身以及部署在Tomcat上的应用进行管理的web应用。Tomcat是Java领域使用最广泛的服务器之一，因此Tomcat Manager也成为了使用非常普遍的功能应用。</p>
+				<p><img src="/img/java/java-io-class.jpg" alt="io" /></p>
 
-<p>在默认情况下，Tomcat Manager是处于禁用状态的。准确地说，Tomcat Manager需要以用户角色进行登录并授权才能使用相应的功能，不过Tomcat并没有配置任何默认的用户，因此需要我们进行相应的用户配置之后才能使用Tomcat Manager。</p>
+<p>图片源自<a href="http://davidisok.iteye.com/blog/2106489">博客</a></p>
 
-<p>Tomcat Manager的用户配置是在<code class="highlighter-rouge">Tomcat安装目录/conf/tomcat-users.xml</code>文件中进行管理的.下面我们以一个具体的配置为例：</p>
+<p>Java I/O默认是不缓冲流的，所谓“缓冲”就是先把从流中得到的一块字节序列暂存在一个被称为buffer的内部字节数组里，然后你可以一下子取到这一整块的字节数据，没有缓冲的流只能一个字节一个字节读，效率孰高孰低一目了然。有两个特殊的输入流实现了缓冲功能，一个是我们常用的BufferedInputStream , 一个是ByteArrayInputStream</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tomcat-users&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"admin-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"admin-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"manager-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;role</span> <span class="na">rolename=</span><span class="s">"manager-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;user</span> <span class="na">username=</span><span class="s">"tomcat"</span> <span class="na">password=</span><span class="s">"tomcat"</span> <span class="na">roles=</span><span class="s">"manager-gui"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;user</span> <span class="na">username=</span><span class="s">"admin"</span> <span class="na">password=</span><span class="s">"admin"</span> <span class="na">roles=</span><span class="s">"manager-gui,manager-script,admin-gui,admin-script"</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;/tomcat-users&gt;</span>
+<p>BufferedInputStream是继承自FilterInputStream。
+FilterInputStream继承自InputStream属于输入流中的链接流，同时引用了InputStream，将InputStream封装成一个内部变量，同时构造方法上需要传入一个InputStream。这是一个典型的装饰器模式，他的任何子类都可以对一个继承自InputStream的原始流或其他链接流进行装饰，如我们常用的使用BufferedInputStream对FileInputStream进行装饰，使普通的文件输入流具备了内存缓存的功能，通过内存缓冲减少磁盘io次数。</p>
+
+<p>ByteArrayInputStream如何调用read,它都是在返回内部固定的数组中的数值。
+如果当前位置超过了数组的count，那么返回-1</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">int</span> <span class="nf">read</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">count</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="n">buf</span><span class="o">[</span><span class="n">pos</span><span class="o">++]</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="o">)</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
 </code></pre>
 </div>
 
-<p>如上所示，我们只需要在tomcat-users节点中配置相应的role(角色/权限)和user(用户)即可。一个user节点表示单个用户，属性username和password分别表示登录的用户名和密码，属性roles表示该用户所具备的权限。</p>
+<p>而对于BufferedInputStream， 当其调用read()时候，如果当前的位置超过了数组的count，BufferedInputStream会去从底层的inputStream去读取新的数据，填充到内部数组中。</p>
 
-<p>user节点的roles属性值与role节点的rolename属性值相对应，表示当前用户具备该role节点所表示的角色权限。当然，一个用户可以具备多种权限，因此属性roles的值可以是多个rolename，多个rolename之间以英文逗号隔开即可。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">int</span> <span class="nf">read</span><span class="p">(</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">fill</span><span class="o">();</span> <span class="c1">//读取新的数据</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="o">)</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">getBufIfOpen</span><span class="o">()[</span><span class="n">pos</span><span class="o">++]</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="o">;</span>
+    <span class="o">}</span>
 
-<p>稍加思考，我们就应该猜测到，rolename的属性值并不是随意的内容，否则Tomcat怎么能够知道我们随便定义的rolename表示什么样的权限呢。实际上，Tomcat已经为我们定义了4种不同的角色——也就是4个rolename，我们只需要使用Tomcat为我们定义的这几种角色就足够满足我们的工作需要了。</p>
+</code></pre>
+</div>
 
-<p>你可以在<code class="highlighter-rouge">$CATALINA_BASE/webapps/manager/WEB-INF/web.xml</code>找到这些角色的名字.以下是Tomcat Manager 角色的大致介绍(下面URL中的*为通配符):</p>
+<p>读写对象：ObjectInputStream 和ObjectOutputStream ，该流允许读取或写入用户自定义的类，但是要实现这种功能，被读取和写入的类必须实现Serializable接口
+只有支持 java.io.Serializable 或 java.io.Externalizable 接口的对象才能从流读取</p>
 
-<p><code class="highlighter-rouge">manager-gui</code> 允许访问html接口(即URL路径为/manager/html/<em>) <br />
-<code class="highlighter-rouge">manager-script</code> 允许访问纯文本接口(即URL路径为/manager/text/</em>)<br />
-<code class="highlighter-rouge">manager-jmx</code> 允许访问JMX代理接口(即URL路径为/manager/jmxproxy/<em>)<br />
-<code class="highlighter-rouge">manager-status</code>允许访问Tomcat只读状态页面(即URL路径为/manager/status/</em>)<br />
-从Tomcat Manager内部配置文件中可以得知，manager-gui、manager-script、manager-jmx均具备manager-status的权限，也就是说，manager-gui、manager-script、manager-jmx三种角色权限无需再额外添加manager-status权限，即可直接访问路径/manager/status/*。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>   <span class="c1">//object --&gt; byte[]</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">object2Byte</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">){</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="n">ObjectOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="k">try</span><span class="o">{</span>
+         <span class="n">ByteArrayOutputStream</span> <span class="n">baos</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
+         <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectOutputStream</span><span class="o">(</span><span class="n">baos</span><span class="o">);</span>
+         <span class="n">out</span><span class="o">.</span><span class="na">writeObject</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
+
+         <span class="n">data</span> <span class="o">=</span> <span class="n">baos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
+      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
+         <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span><span class="k">finally</span><span class="o">{</span>
+         <span class="k">if</span><span class="o">(</span><span class="n">out</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">try</span><span class="o">{</span>
+               <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
+               <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+         <span class="o">}</span>
+      <span class="o">}</span>
+      <span class="k">return</span> <span class="n">data</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="c1">//byte[]  --&gt;  object </span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="n">Object</span> <span class="n">byte2Object</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">){</span>
+      <span class="n">Object</span> <span class="n">object</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="n">ObjectInputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="k">try</span><span class="o">{</span>
+         <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectInputStream</span><span class="o">(</span><span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">data</span><span class="o">));</span>
+         <span class="n">object</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readObject</span><span class="o">();</span>
+      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">NullPointerException</span> <span class="n">e</span><span class="o">){</span>
+         <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+         <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span><span class="k">finally</span><span class="o">{</span>
+         <span class="k">if</span><span class="o">(</span><span class="n">in</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="k">try</span><span class="o">{</span>
+               <span class="n">in</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
+               <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+         <span class="o">}</span>
+      <span class="o">}</span>
+      <span class="k">return</span> <span class="n">object</span><span class="o">;</span>
+   <span class="o">}</span>
+
+</code></pre>
+</div>
+
+<h2 id="section">未完待续</h2>
+<p>更新: 2016-05-24</p>
 
 
                 <hr>
@@ -230,11 +287,15 @@
                 </style>
                 <div class="ds-share"
                     style="text-align: right"
-                    data-thread-key="/2016/04/26/tomcat-manager-user"
-                    data-title="tomcat manager user"
-                    data-url="http://desireall.github.io/2016/04/26/tomcat-manager-user/"
-                    data-images="http://desireall.github.io/img/post-bg-ios9-web.jpg"
-                    data-content="Tomcat Manager是Tomcat自带的、用于对Tomcat自身以及部署在Tomcat上的应用进行管理的web应用。Tomcat是Java领域使用... | YuHuo的博客 | YuHuo Blog " >
+                    data-thread-key="/2016/05/04/java-io"
+                    data-title="java io"
+                    data-url="http://desireall.github.io/2016/05/04/java-io/"
+                    data-images="http://desireall.github.io/img/post-bg-digital-native.jpg"
+                    data-content="
+
+图片源自博客
+
+Java I/O默认是不缓冲流的，所谓“缓冲”就是先把从流中得到的一块字节序列暂存在一个被称为buffer的内部字节数组里，然后你可以... | YuHuo的博客 | YuHuo Blog " >
                     <div class="ds-share-inline">
                       <ul  class="ds-share-icons-16">
                         <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
@@ -254,17 +315,17 @@
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2016/04/26/java-init-sequence/" data-toggle="tooltip" data-placement="top" title="java init sequence">
+                        <a href="/2016/04/26/tomcat-manager-user/" data-toggle="tooltip" data-placement="top" title="tomcat manager user">
                         Previous<br>
-                        <span>java init sequence</span>
+                        <span>tomcat manager user</span>
                         </a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/2016/05/04/java-io/" data-toggle="tooltip" data-placement="top" title="java io">
+                        <a href="/2016/05/24/maven-common-commands/" data-toggle="tooltip" data-placement="top" title="maven common commands">
                         Next<br>
-                        <span>java io</span>
+                        <span>maven common commands</span>
                         </a>
                     </li>
                     
@@ -275,9 +336,9 @@
                 <!-- 多说评论框 start -->
                 <div class="comment">
                     <div class="ds-thread"
-                        data-thread-key="/2016/04/26/tomcat-manager-user"
-                        data-title="tomcat manager user"
-                        data-url="http://desireall.github.io/2016/04/26/tomcat-manager-user/" >
+                        data-thread-key="/2016/05/04/java-io"
+                        data-title="java io"
+                        data-url="http://desireall.github.io/2016/05/04/java-io/" >
                     </div>
                 </div>
                 <!-- 多说评论框 end -->

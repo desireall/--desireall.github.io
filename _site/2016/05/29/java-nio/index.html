@@ -10,9 +10,9 @@
     <meta name="keyword"  content="YuHuo">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>java io - YuHuo的博客 | YuHuo Blog</title>
+    <title>java nio - YuHuo的博客 | YuHuo Blog</title>
 
-    <link rel="canonical" href="http://desireall.github.io/2016/05/04/java-io/">
+    <link rel="canonical" href="http://desireall.github.io/2016/05/29/java-nio/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -144,13 +144,13 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/post-bg-rwd.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
         position: relative;
-        background-image: url('/img/post-bg-rwd.jpg')
+        background-image: url('/img/post-bg-2015.jpg')
     }
 
     
@@ -166,12 +166,12 @@
                         <a class="tag" href="/tags/#java" title="java">java</a>
                         
                     </div>
-                    <h1>java io</h1>
+                    <h1>java nio</h1>
                     
                     
                     <h2 class="subheading"></h2>
                     
-                    <span class="meta">Posted by YuHuo on May 4, 2016</span>
+                    <span class="meta">Posted by YuHuo on May 29, 2016</span>
                 </div>
             </div>
         </div>
@@ -189,144 +189,113 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-				<p>Java 的 I/O 操作类在包 java.io 下，大概有将近 80 个类，但是这些类大概可以分成四组，分别是：</p>
+				<p>1）NIO socket的工作方式到底是阻塞的还是非阻塞的？
+在NIO socket中，我们常常说NIO是非阻塞的。于是有人想当然就认为Selector.select()是一个非阻塞的函数。
+错，selector.select()是一个阻塞的函数.为什么大家都爱说NIO是非阻塞的呢？这里指的非阻塞指的是SocketChannel（对应接受数据）或者ServerSocketChannel（对应准备连接）的工作方式，我们可以设置这些SelectableChannel的工作模式为非阻塞的。
+那么SelectableChannel的工作模式为非阻塞的意义是什么呢？<strong>这就意味着如果系统提示你某一个SelectableChannel准备好了，那么你就立刻可以从中读取数据或写入数据，这个读写过程是非阻塞的，是一定会马上返回</strong>。</p>
 
-<ul>
-  <li>基于字节操作的 I/O 接口：InputStream 和 OutputStream</li>
-  <li>基于字符操作的 I/O 接口：Writer 和 Reader</li>
-  <li>基于磁盘操作的 I/O 接口：File</li>
-  <li>基于网络操作的 I/O 接口：Socket</li>
-</ul>
+<p>2） NIO和传统IO的优势
+那我们来看看传统IO是怎么做的，传统IO的工作方式如下：</p>
 
-<p>前两组主要是根据传输数据的数据格式，后两组主要是根据传输数据的方式，虽然 Socket 类并不在 java.io 包下，但是我仍然把它们划分在一起，因为我个人认为 I/O 的核心问题要么是数据格式影响 I/O 操作，要么是传输方式影响 I/O 操作，也就是将什么样的数据写到什么地方的问题，I/O 只是人与机器或者机器与机器交互的手段，除了在它们能够完成这个交互功能外，我们关注的就是如何提高它的运行效率了，而<strong>数据格式</strong>和<strong>传输方式</strong>是影响效率最关键的因素了。我们后面的分析也是基于这两个因素来展开的。</p>
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">ServerSocket</span> <span class="n">servSocket</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServerSocket</span><span class="o">(</span><span class="mi">8000</span><span class="o">);</span> <span class="c1">//监听本地端口</span>
+<span class="c1">// Listens for a connection to be made to this socket and accepts it. </span>
+<span class="c1">// The method blocks until a connection is made.</span>
+<span class="c1">//阻塞监听是否有客户端连接</span>
+<span class="n">Socket</span> <span class="n">sock</span> <span class="o">=</span> <span class="n">servSocket</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+<span class="n">ObjectInputStream</span> <span class="n">ois</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectInputStream</span><span class="o">(</span><span class="n">sock</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">());</span>
+<span class="n">ObjectOutputStream</span> <span class="n">oos</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectOutputStream</span><span class="o">(</span><span class="n">sock</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
+<span class="c1">//Writes a byte. This method will block until the byte is actually written.</span>
+<span class="n">oos</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+<span class="c1">//Reads a byte of data. This method will block if no input is available.</span>
+<span class="kt">int</span> <span class="n">retVal</span> <span class="o">=</span> <span class="n">ois</span><span class="o">.</span><span class="na">read</span><span class="o">(..)</span>
+</code></pre>
+</div>
 
-<h3 id="io-">基于字节的 I/O 操作接口</h3>
-
-<p><strong>InputStream 相关类层次结构(<a href="/img/java/java-io-inputstream-class.png">查看大图</a>)</strong>
-<img src="/img/java/java-io-inputstream-class.png" alt="io" /></p>
-
-<p><strong>OutputStream 相关类层次结构(<a href="/img/java/java-io-outputstream-class.png">查看大图</a>)</strong>
-<img src="/img/java/java-io-outputstream-class.png" alt="io" /></p>
-
-<h3 id="io--1">基于字符操作的 I/O 接口</h3>
-
-<p><strong>Reader 相关类层次结构(<a href="/img/java/java-io-reader-class.png">查看大图</a>)</strong>
-<img src="/img/java/java-io-reader-class.png" alt="io" /></p>
-
-<p><strong>Writer 相关类层次结构(<a href="/img/java/java-io-writer-class.png">查看大图</a>)</strong>
-<img src="/img/java/java-io-writer-class.png" alt="io" /></p>
-
-<h3 id="section">字节与字符的转化接口</h3>
-
-<h3 id="io--2">基于磁盘操作的 I/O 接口</h3>
-
-<h3 id="io--3">基于网络操作的 I/O 接口</h3>
-
-<p><img src="/img/java/java-io-class.jpg" alt="io" /></p>
-
-<p>图片源自<a href="http://davidisok.iteye.com/blog/2106489">博客</a></p>
-
-<p>Java I/O默认是不缓冲流的，所谓“缓冲”就是先把从流中得到的一块字节序列暂存在一个被称为buffer的内部字节数组里，然后你可以一下子取到这一整块的字节数据，没有缓冲的流只能一个字节一个字节读，效率孰高孰低一目了然。有两个特殊的输入流实现了缓冲功能，一个是我们常用的BufferedInputStream , 一个是ByteArrayInputStream</p>
-
-<p>BufferedInputStream是继承自FilterInputStream。
-FilterInputStream继承自InputStream属于输入流中的链接流，同时引用了InputStream，将InputStream封装成一个内部变量，同时构造方法上需要传入一个InputStream。这是一个典型的装饰器模式，他的任何子类都可以对一个继承自InputStream的原始流或其他链接流进行装饰，如我们常用的使用BufferedInputStream对FileInputStream进行装饰，使普通的文件输入流具备了内存缓存的功能，通过内存缓冲减少磁盘io次数。</p>
-
-<p>ByteArrayInputStream如何调用read,它都是在返回内部固定的数组中的数值。
-如果当前位置超过了数组的count，那么返回-1</p>
+<p>通过这种方式，你可以看出ois,oos的读写都是阻塞的，如果将他们放在主线程中就会阻塞住主线程，使得主线程的吞吐量大大减小。于是一个通常的做法是在主线程中进行accept（）监听，一旦监听到一个连接，
+立即new一个worker线程，由该线程进行ois，oos数据读写。
+这种做法的缺点在于创建了很多的线程，线程越多，系统的额外开销overhead就越大。
+那么来看看NIO能为我们带来什么。NIO引入了channel的概念，所谓channel就是一个读写的管道，通过管道的读写来完成IO操作。channel分为ServerSocketChannel和SocketChannel，前者用于监听，获得客户端的连接，
+后者直接用于操作IO，来看看Channel如何进行Socket操作：</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>
-<span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">int</span> <span class="nf">read</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">count</span><span class="o">)</span> <span class="o">?</span> <span class="o">(</span><span class="n">buf</span><span class="o">[</span><span class="n">pos</span><span class="o">++]</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="o">)</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
-    <span class="o">}</span>
-
+<span class="n">String</span> <span class="n">host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">;</span>
+<span class="n">InetSocketAddress</span> <span class="n">socketAddress</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InetSocketAddress</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="mi">80</span><span class="o">);</span>
+<span class="c1">//默认情况下，所有channel（包括ServerSocketChannel, SocketChannel）的工作模式是阻塞</span>
+<span class="n">ServerSocketChannel</span> <span class="n">ssc</span> <span class="o">=</span> <span class="n">ServerSocketChannel</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+<span class="n">ssc</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">socketAddress</span><span class="o">);</span>
+<span class="c1">//阻塞监听客户端，获得客户端的连接channel</span>
+<span class="n">SocketChannel</span> <span class="n">sc</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+<span class="n">Charset</span> <span class="n">charset</span> <span class="o">=</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"ISO-8859-1"</span><span class="o">);</span>
+<span class="n">CharsetEncoder</span> <span class="n">encoder</span> <span class="o">=</span> <span class="n">charset</span><span class="o">.</span><span class="na">newEncoder</span><span class="o">();</span>
+<span class="n">String</span> <span class="n">request</span> <span class="o">=</span> <span class="s">"GET / \r\n\r\n"</span><span class="o">;</span>
+<span class="c1">//阻塞写</span>
+<span class="n">sc</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">encoder</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">CharBuffer</span><span class="o">.</span><span class="na">wrap</span><span class="o">(</span><span class="n">request</span><span class="o">)));</span>
+<span class="n">ByteBuffer</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">ByteBuffer</span><span class="o">.</span><span class="na">allocateDirect</span><span class="o">(</span><span class="mi">1024</span><span class="o">);</span>
+<span class="c1">//阻塞读</span>
+<span class="k">while</span><span class="o">(</span><span class="n">sc</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>
+    <span class="c1">//do something</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
-<p>而对于BufferedInputStream， 当其调用read()时候，如果当前的位置超过了数组的count，BufferedInputStream会去从底层的inputStream去读取新的数据，填充到内部数组中。</p>
+<p>NIO通过channel来操作IO，概念上更加清晰。但有人会说：它仍然是阻塞的操作模式，本质上于传统Socket IO来比，工作模式并没有本质上的变化呀，还不是要分配线程。
+的确，如果NIO只带来了这些，那么NIO也没有什么优势。但是NIO带来的不只是这些，这些channel可以配置成no-blocking模式，借助于selector，NIO带来了一种新的socket编写模式：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">int</span> <span class="nf">read</span><span class="p">(</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">fill</span><span class="o">();</span> <span class="c1">//读取新的数据</span>
-            <span class="k">if</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="o">)</span>
-                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
-        <span class="o">}</span>
-        <span class="k">return</span> <span class="n">getBufIfOpen</span><span class="o">()[</span><span class="n">pos</span><span class="o">++]</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="o">;</span>
-    <span class="o">}</span>
-
-</code></pre>
-</div>
-
-<p>读写对象：ObjectInputStream 和ObjectOutputStream ，该流允许读取或写入用户自定义的类，但是要实现这种功能，被读取和写入的类必须实现Serializable接口
-只有支持 java.io.Serializable 或 java.io.Externalizable 接口的对象才能从流读取</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>   <span class="c1">//object --&gt; byte[]</span>
-   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">object2Byte</span><span class="o">(</span><span class="n">Object</span> <span class="n">object</span><span class="o">){</span>
-      <span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-      <span class="n">ObjectOutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-      <span class="k">try</span><span class="o">{</span>
-         <span class="n">ByteArrayOutputStream</span> <span class="n">baos</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
-         <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectOutputStream</span><span class="o">(</span><span class="n">baos</span><span class="o">);</span>
-         <span class="n">out</span><span class="o">.</span><span class="na">writeObject</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
-
-         <span class="n">data</span> <span class="o">=</span> <span class="n">baos</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span>
-      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
-         <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-      <span class="o">}</span><span class="k">finally</span><span class="o">{</span>
-         <span class="k">if</span><span class="o">(</span><span class="n">out</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
-            <span class="k">try</span><span class="o">{</span>
-               <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-            <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
-               <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-            <span class="o">}</span>
-         <span class="o">}</span>
-      <span class="o">}</span>
-      <span class="k">return</span> <span class="n">data</span><span class="o">;</span>
-   <span class="o">}</span>
-
-   <span class="c1">//byte[]  --&gt;  object </span>
-   <span class="kd">public</span> <span class="kd">static</span> <span class="n">Object</span> <span class="n">byte2Object</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">){</span>
-      <span class="n">Object</span> <span class="n">object</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-      <span class="n">ObjectInputStream</span> <span class="n">in</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
-      <span class="k">try</span><span class="o">{</span>
-         <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectInputStream</span><span class="o">(</span><span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">data</span><span class="o">));</span>
-         <span class="n">object</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readObject</span><span class="o">();</span>
-      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">NullPointerException</span> <span class="n">e</span><span class="o">){</span>
-         <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
-      <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
-         <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-      <span class="o">}</span><span class="k">finally</span><span class="o">{</span>
-         <span class="k">if</span><span class="o">(</span><span class="n">in</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
-            <span class="k">try</span><span class="o">{</span>
-               <span class="n">in</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-            <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">){</span>
-               <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">""</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-            <span class="o">}</span>
-         <span class="o">}</span>
-      <span class="o">}</span>
-      <span class="k">return</span> <span class="n">object</span><span class="o">;</span>
-   <span class="o">}</span>
+<div class="highlighter-rouge"><pre class="highlight"><code>
+<span class="n">String</span> <span class="n">host</span> <span class="o">=</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">;</span>
+<span class="n">InetSocketAddress</span> <span class="n">socketAddress</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InetSocketAddress</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="mi">80</span><span class="o">);</span>
+<span class="n">ServerSocketChannel</span>  <span class="n">ssc</span> <span class="o">=</span> <span class="n">ServerSocketChannel</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+<span class="c1">//配置channel的阻塞模式</span>
+<span class="n">ssc</span><span class="o">.</span><span class="na">configureBlocking</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+<span class="n">ssc</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">socketAddress</span><span class="o">);</span>
+<span class="n">Selector</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">Selector</span><span class="o">.</span><span class="na">open</span><span class="o">();</span> 
+<span class="c1">//将ServerSocketChannel注册到selector上，selector可以检测多路channel</span>
+<span class="n">ssc</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">selctor</span><span class="o">,</span> <span class="n">SelectionKey</span><span class="o">.</span><span class="na">OP_ACCEPT</span><span class="o">);</span>
+<span class="k">while</span><span class="o">(</span><span class="kc">true</span><span class="o">){</span>
+    <span class="c1">//阻塞等待事件响应</span>
+    <span class="n">selector</span><span class="o">.</span><span class="na">select</span><span class="o">();</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">SelectionKey</span><span class="o">&gt;</span> <span class="n">selectionKeys</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="na">selectedKeys</span><span class="o">();</span>
+    <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">SelectionKey</span><span class="o">&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">selectionKeys</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+    <span class="c1">//获得多路的channel，这些channel此时都已准备就绪，工作在非阻塞模式，可以非阻塞读写</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span> 
+            <span class="n">SelectionKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">it</span><span class="o">.</span><span class="na">next</span><span class="o">();</span> 
+            <span class="n">it</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span> 
+            <span class="k">if</span> <span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">isAcceptable</span><span class="o">())</span> <span class="o">{</span> 
+            <span class="n">ServerSocketChannel</span> <span class="n">serverSocketChannel</span> <span class="o">=</span> <span class="o">(</span><span class="n">ServerSocketChannel</span><span class="o">)</span> <span class="n">key</span><span class="o">.</span><span class="na">channel</span><span class="o">();</span> 
+        <span class="c1">//此时的accept是非阻塞的，立马返回</span>
+            <span class="n">SocketChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">serverSocketChannel</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span> 
+            <span class="n">channel</span><span class="o">.</span><span class="na">configureBlocking</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span> 
+        <span class="c1">//可以不断得将这些channel注册成不同的类型，使之即可读，又可写</span>
+            <span class="n">channel</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">selector</span><span class="o">,</span> <span class="n">SelectionKey</span><span class="o">.</span><span class="na">OP_READ</span><span class="o">);</span> 
+            <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">isReadable</span><span class="o">())</span> <span class="o">{</span> 
+            <span class="n">SocketChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="o">(</span><span class="n">SocketChannel</span><span class="o">)</span> <span class="n">key</span><span class="o">.</span><span class="na">channel</span><span class="o">();</span>
+        <span class="c1">//非阻塞读，立马返回数据</span>
+        <span class="n">channel</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">);</span>
+        <span class="c1">//...</span>
+        <span class="n">SelectionKey</span> <span class="n">selectionKey</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">selector</span><span class="o">,</span> <span class="n">SelectionKey</span><span class="o">.</span><span class="na">OP_WRITE</span><span class="o">);</span> 
+            <span class="n">selectionKey</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="k">new</span> <span class="n">HandleClient</span><span class="o">(</span><span class="n">clientName</span><span class="o">));</span>
+              <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">isWritable</span><span class="o">())</span> <span class="o">{</span> 
+            <span class="n">SocketChannel</span> <span class="n">channel</span> <span class="o">=</span> <span class="o">(</span><span class="n">SocketChannel</span><span class="o">)</span> <span class="n">key</span><span class="o">.</span><span class="na">channel</span><span class="o">();</span> 
+            <span class="n">HandleClient</span> <span class="n">handleClient</span> <span class="o">=</span> <span class="o">(</span><span class="n">HandleClient</span><span class="o">)</span> <span class="n">key</span><span class="o">.</span><span class="na">attachment</span><span class="o">();</span> 
+            <span class="n">ByteBuffer</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">handleClient</span><span class="o">.</span><span class="na">readBlock</span><span class="o">();</span> 
+       
+            <span class="o">}</span> 
+        <span class="o">}</span> 
+<span class="o">}</span>
 
 </code></pre>
 </div>
+<p>在这种模式下，原来负责端口监听的accept()方法换成了select()方法，两者都是阻塞的，本质上没有分别.区别在于select()之后返回的所有channel都是非阻塞的，都是可以马上读写的。
+而accept()之后的channel则是阻塞的，不能保证此时返回的channel的读写能够马上返回。因此，NIO的非阻塞方式就可以设置比较少的线程，因为这些线程拿到的channel都是立马可以读写的，
+这些线程的工作都是满负荷的，效率高。反之，阻塞方式需要创建同样较多的线程，因为这些线程很多都处于阻塞休眠状态，大家都不是满负荷在工作。
+那NIO的优点就很明显了。</p>
 
-<h2 id="section-1">未完待续</h2>
-<p>更新: 2016-05-24</p>
+<h2 id="section">待更新</h2>
 
 <p>参考</p>
 
 <ul>
-  <li>
-    <p>http://blog.csdn.net/zuoxiaolong8810/article/details/9123533</p>
-  </li>
-  <li>
-    <p>http://josh-persistence.iteye.com/blog/2064221</p>
-  </li>
-  <li>
-    <p>http://www.xuebuyuan.com/392616.html</p>
-  </li>
-  <li>
-    <p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-javaio/">深入分析 Java I/O 的工作机制</a></p>
-  </li>
+  <li><a href="http://blog.sina.com.cn/s/blog_68ffc7a40100xiuv.html">为什么选择Java NIO</a></li>
 </ul>
 
 
@@ -338,14 +307,12 @@ FilterInputStream继承自InputStream属于输入流中的链接流，同时引�
                 </style>
                 <div class="ds-share"
                     style="text-align: right"
-                    data-thread-key="/2016/05/04/java-io"
-                    data-title="java io"
-                    data-url="http://desireall.github.io/2016/05/04/java-io/"
-                    data-images="http://desireall.github.io/img/post-bg-rwd.jpg"
-                    data-content="Java 的 I/O 操作类在包 java.io 下，大概有将近 80 个类，但是这些类大概可以分成四组，分别是：
-
-
-  基于字节操作的 I/O 接口：... | YuHuo的博客 | YuHuo Blog " >
+                    data-thread-key="/2016/05/29/java-nio"
+                    data-title="java nio"
+                    data-url="http://desireall.github.io/2016/05/29/java-nio/"
+                    data-images="http://desireall.github.io/img/post-bg-2015.jpg"
+                    data-content="1）NIO socket的工作方式到底是阻塞的还是非阻塞的？
+在NIO socket中，我们常常说NIO是非阻塞的。于是有人想当然就认为Selector.... | YuHuo的博客 | YuHuo Blog " >
                     <div class="ds-share-inline">
                       <ul  class="ds-share-icons-16">
                         <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
@@ -365,19 +332,12 @@ FilterInputStream继承自InputStream属于输入流中的链接流，同时引�
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2016/04/28/maven-common-commands/" data-toggle="tooltip" data-placement="top" title="maven common commands">
+                        <a href="/2016/05/04/java-io/" data-toggle="tooltip" data-placement="top" title="java io">
                         Previous<br>
-                        <span>maven common commands</span>
+                        <span>java io</span>
                         </a>
                     </li>
                     
-                    
-                    <li class="next">
-                        <a href="/2016/05/29/java-nio/" data-toggle="tooltip" data-placement="top" title="java nio">
-                        Next<br>
-                        <span>java nio</span>
-                        </a>
-                    </li>
                     
                 </ul>
 
@@ -386,9 +346,9 @@ FilterInputStream继承自InputStream属于输入流中的链接流，同时引�
                 <!-- 多说评论框 start -->
                 <div class="comment">
                     <div class="ds-thread"
-                        data-thread-key="/2016/05/04/java-io"
-                        data-title="java io"
-                        data-url="http://desireall.github.io/2016/05/04/java-io/" >
+                        data-thread-key="/2016/05/29/java-nio"
+                        data-title="java nio"
+                        data-url="http://desireall.github.io/2016/05/29/java-nio/" >
                     </div>
                 </div>
                 <!-- 多说评论框 end -->

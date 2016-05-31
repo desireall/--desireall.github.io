@@ -2,7 +2,7 @@
 layout:     post
 title : "maven common commands"
 subtitle:   
-date:       2016-05-24 12:00:00
+date:       2016-04-28 12:00:00
 author:     "YuHuo"
 header-img: "img/post-bg-digital-native.jpg"
 catalog: true

@@ -173,7 +173,50 @@
             ">
     			
 <div class="post-preview">
-    <a href="/2016/05/24/maven-common-commands/">
+    <a href="/2016/05/29/java-nio/">
+        <h2 class="post-title">
+            java nio
+        </h2>
+        
+        <div class="post-content-preview">
+            1）NIO socket的工作方式到底是阻塞的还是非阻塞的？
+在NIO socket中，我们常常说NIO是非阻塞的。于是有人想当然就认为Selector.select()是一个非阻塞的函数。
+错，selector.select()是一个阻塞的函数.为什么大家都爱说NIO是非阻塞的呢？这里指的非阻塞指的是SocketChannel（对应接受数据）或者ServerSocketChannel（对应...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by YuHuo on May 29, 2016
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2016/05/04/java-io/">
+        <h2 class="post-title">
+            java io
+        </h2>
+        
+        <div class="post-content-preview">
+            Java 的 I/O 操作类在包 java.io 下，大概有将近 80 个类，但是这些类大概可以分成四组，分别是：
+
+
+  基于字节操作的 I/O 接口：InputStream 和 OutputStream
+  基于字符操作的 I/O 接口：Writer 和 Reader
+  基于磁盘操作的 I/O 接口：File
+  基于网络操作的 I/O 接口：Socket
+
+
+前两组主要是根据传输数据...
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by YuHuo on May 4, 2016
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="/2016/04/28/maven-common-commands/">
         <h2 class="post-title">
             maven common commands
         </h2>
@@ -192,29 +235,7 @@ mvn archetype:create
         </div>
     </a>
     <p class="post-meta">
-        Posted by YuHuo on May 24, 2016
-    </p>
-</div>
-<hr>
-
-<div class="post-preview">
-    <a href="/2016/05/04/java-io/">
-        <h2 class="post-title">
-            java io
-        </h2>
-        
-        <div class="post-content-preview">
-            
-
-图片源自博客
-
-Java I/O默认是不缓冲流的，所谓“缓冲”就是先把从流中得到的一块字节序列暂存在一个被称为buffer的内部字节数组里，然后你可以一下子取到这一整块的字节数据，没有缓冲的流只能一个字节一个字节读，效率孰高孰低一目了然。有两个特殊的输入流实现了缓冲功能，一个是我们常用的BufferedInputStream , 一个是ByteArrayInputStream
-
-Buff...
-        </div>
-    </a>
-    <p class="post-meta">
-        Posted by YuHuo on May 4, 2016
+        Posted by YuHuo on April 28, 2016
     </p>
 </div>
 <hr>
@@ -371,7 +392,7 @@ load ...
                 <h5>FRIENDS</h5>
                 <ul class="list-inline">
                     
-                        <li><a href="http://huangxuan.me/">黄玄的博客</a></li>
+                        <li><a href=""></a></li>
                     
                 </ul>
                 

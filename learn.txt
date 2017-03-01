@@ -1,0 +1,341 @@
+--------2017.2.3 ~~ 2017.2.7
+OTA
+  开源项目 php-tot
+  
+  itms-services 协议     <a href="itms-services://?action=download-manifest&url=https://desireall.github.io/ota/manifest.plist">
+  文件
+  .plist   # ios7.1 之后必须部署在https服务器上   其中的 url指向  ipa的所在位置(可使用http服务器)
+  .ipa
+
+使用 云盘php-tot_online + https站点 部署OTA 
+
+https 
+  自签CA 证书  (使用openssl OR Java中的keytool生成)
+    生成.csr ---> .crt   .cer 文件
+
+--------2017.2.9 ~~ 2017.2.
+
+springmvc的文件上传功能  (用来存储上传的.ipa文件)       
+    
+    项目spring-mvc-showcase     
+
+      ！！eclilpse中导入maven的web项目   需要wtp插件  或者   执行 mvn eclipse:eclipse –Dwtpversion=1.0
+ 
+      使用插件 AspectJ  一个面向切面的框架，它扩展了Java语言。
+           AspectJ定义了AOP语法，所以它有一个专门的编译器用来生成遵守Java字节编码规范的Class文件。
+    
+          https://www.oschina.net/question/2376096_238593
+                 Spring AOP需要将切面用Ioc容器来管理，但是aspectj不用，你只需要用他自己的编译器即可。
+
+        Eclipse 中的 AJDT插件
+             http://www.eclipse.org/ajdt/downloads/#44zips
+
+         maven构建项目时，出现aspectj-maven-plugin 无法构建的问题    解决办法： 给eclipse安装AspectJ(AJDT)插件
+
+      springmvc文件上传配置
+
+       <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+         <!-- 支持的其中一个属性，支持的最大文件大小，以字节为单位 -->
+         <property name="maxUploadSize" value="100000"/>
+       </bean>
+     
+     多路解析器正常工作，你需要在classpath路径下准备必须的jar包。如果使用的是通用的多路上传解析器CommonsMultipartResolver，你所需要的jar包是commons-fileupload.jar
+
+     上传文件超出设置大小会抛出
+           org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size of 100 bytes exceeded;
+     ！！了解springmvc 异常处理 返回 的几种方式
+         
+
+     servlet的多路传输转换功能(需要了解一下)
+
+
+     TODO 使用 springmvc 完成 类php-tot工具
+
+           java 解析 ipa文件
+           https://my.oschina.net/heweipo/blog/382942
+
+           springmvc文件上传 保存
+           http://blog.csdn.net/swingpyzf/article/details/20230865
+           
+           SpringMVC加载配置Properties文件的几种方式
+           http://www.yyjava.com/blog/articles/177.html
+
+           jsp中的basePath和path (绝对路径 相对路径)
+           http://rainbow702.iteye.com/blog/1553200
+
+        1. 文件上传 下载 (文件上传  静态资源访问)
+        2. .ipa  .apk 文件的解析保存 (文件解压缩)
+        3. 界面优化
+        4. 使用配置参数(properties)
+
+    ！！了解 springmvc 中配置的 mvc:annotation-driven 和 task:annotation-driven 的区别
+         
+         所有的自定义命名空间（像mvc，context等）下的标签解析都是由BeanDefinitionParser接口的子类来完成
+         
+         <beans:property> 与  <property> 的区别
+
+         web项目的路径问题
+         
+
+
+
+--------2017.2.9 ~~ 2017.2.
+    
+
+了解 oAuth2.0
+    
+    项目 spring-rest-oauth2-sample
+     
+    TODO 
+    了解原理
+    对接一个oAuth2.0系统
+    部署一个
+    
+     
+了解 RESTful API
+
+       支持RESTful的框架 springmvc   jersey    springboot
+      
+             springboot实战  http://blog.csdn.net/liaokailin/article/category/5765237
+
+    开源项目springboot-restful 
+    
+    使用 Java 配置进行 Spring bean 管理  @Configuration  @bean
+           https://www.ibm.com/developerworks/cn/webservices/ws-springjava/
+
+
+http2.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+
+服务器结构   线程模型
+
+服务器配置
+
+GM
+
+客户端热更新    php  lua
+
+
+
+apache benchmark  ?
+用apache benchmark来做的基于HTTP协议上的Helloworld的测试
+
+
+
+Lucida Console
+
+了解maven
+       配置
+   D:\apache-maven-3.1.0\conf\settings.xml 
+      <localRepository>F:\maven\repository</localRepository>      // 配置本地仓储位置
+      
+      // 配置 中央仓储 镜像    <mirrorOf> central</mirrorOf>    不使用默认的下载路径,加快下载速度
+     <mirror>      
+      <id> maven-net-cn</id>
+      <name> Maven China Mirror</name>      
+      <url> http://central.maven.org/maven2/</url>        
+      <mirrorOf> central</mirrorOf>      
+    </mirror>
+
+
+    通过配置文件添加 下载源码  doc文件
+<profiles>
+<profile>
+    <id>downloadSources</id>
+    <properties>
+        <downloadSources>true</downloadSources>
+        <downloadJavadocs>true</downloadJavadocs>           
+    </properties>
+</profile>
+</profiles>
+<activeProfiles>
+  <activeProfile>downloadSources</activeProfile>
+</activeProfiles>
+
+
+       命令   
+         mvn dependency:sources //下载项目依赖包以及源码
+         mvn dependency:resolve -Dclassifier=javadoc  // 下载项目的依赖包以及doc.jar文件
+
+         mvn package // 项目打包
+
+
+Eclipse 中使用 Maven的问题    
+    在用eclipse导入web项目时 如果eclipse安装了wtp插件在会自动将其转化为eclipse认得到的web项目，在项目上面点击右键run as 的run on server可以用，但是当eclipse没有安装wtp插件时run on server则不用，此时的解决方式为用命令行切换到项目的根目录然后执行 
+          mvn eclipse:eclipse –Dwtpversion=1.0即可解决。
+
+maven已有项目的导入问题  http://linlin.blog.techweb.com.cn/archives/34.html
+
+使用maven 创建新的项目  http://everlook.iteye.com/blog/1446672
+     创建web项目
+     mvn archetype:generate -DgroupId=pers.yuhuo.java-tot -DartifactId=java-tot -DarchetypeArtifactId=maven-archetype-webapp 
+
+
+
+
+日志组件 logback
+  配置文件默认路径 src 下   使用  java -cp .:${JAVA_LOG}   进行配置
+   配置文件查找顺序logback.groovy ---->logback-test.xml----> logback.xml
+    如果配置文件都不存在, 那么 logback 默认地会调用BasicConfigurator
+
+！！了解自定义(包  级别) 日志输入
+http://blog.csdn.net/phantomes/article/details/44779529
+http://webinglin.github.io/2015/06/04/Logback-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/
+
+    <!-- 禁掉mina内部的debug级别输出 -->
+  <logger name="org.apache.mina" level="INFO">
+    <appender-ref ref="stdout" />
+    <appender-ref ref="file—all" />
+    <appender-ref ref="file—above-info" />
+  </logger>
+
+
+常用的配置方式
+
+
+
+
+excel <--> xml
+
+
+
+linux 上 apache 服务器
+
+查看 版本号
+ cd /etc/rc.d/init.d/
+ httpd -v
+
+网页默认目录是/var/www/html下。修改方法：
+打开/etc/httpd/conf/httpd.conf文件，找到下面这行
+DocumentRoot "/var/www/html"
+可以改成你想要的目录。
+-----------------------------------------------------------
+apache的默认重要配置信息如下：
+配置文件：/etc/httpd/conf/http.conf
+服务器的根目录：/var/www/html
+访问日志文件：/var/log/httpd/access_log
+错误日志文件：/var/log/httpd/error_log
+运行apache的用户：apache
+运行apache的组：apache端口：80模块存放路径：/usr/lib/httpd/modules
+
+http服务位置   /etc/rc.d/init.d/
+启动apache /etc/rc.d/init.d/httpd start
+
+
+apache benchmark  网站压力测试
+
+
+OTA
+  开源项目 php-tot
+  
+  itms-services 协议
+  文件
+  .plist   # ios7.1 之后必须部署在https服务器上   其中的 url指向  ipa的所在位置(可使用http服务器)
+  .ipa
+  
+https 
+  自签CA 证书  (使用openssl OR Java中的keytool生成)
+    生成.csr ---> .crt   .cer 文件
+
+
+mysql
+  存储过程
+     
+     
+     
+
+MongoDB
+
+
+
+Redis
+ 基础
+ 
+
+ redis 集群部署
+ 
+
+
+Ruby
+ 基础
+  
+  
+ 删除所有的gem 
+  1.windows 
+     ruby -e "`gem list`.split(/$/).each { |line| puts `gem uninstall -Iax #{line.split(' ')[0]}` unless line.empty? }"
+  2.linux 
+     gem list --no-version | xargs gem uninstall -aIx
+
+
+rails 
+  改代码之后 自动加载的路径      ActiveSupport::Dependencies.autoload_paths
+F:/rubyWorkspace/simple_cms/app/assets
+F:/rubyWorkspace/simple_cms/app/channels
+F:/rubyWorkspace/simple_cms/app/controllers
+F:/rubyWorkspace/simple_cms/app/controllers/concerns
+F:/rubyWorkspace/simple_cms/app/helpers
+F:/rubyWorkspace/simple_cms/app/jobs
+F:/rubyWorkspace/simple_cms/app/mailers
+F:/rubyWorkspace/simple_cms/app/models
+F:/rubyWorkspace/simple_cms/app/models/concerns
+F:/rubyWorkspace/simple_cms/test/mailers/previews
+
+
+
+github 
+  常用命令
+     1.提交操作
+     git add .
+     git commit -m ""
+     git push origin master
+     
+     2.更新
+     git pull origin master
+    
+     3.解决冲突    ！！！
+        http://blog.csdn.net/u012150179/article/details/14047183
+
+
+
+
+
+jetty
+
+
+
+
+
+
+netty
+  基于netty的websocket
+
+
+
+
+
+
+
+

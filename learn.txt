@@ -9,6 +9,36 @@ OTA
 
 使用 云盘php-tot_online + https站点 部署OTA 
 
+部署apache 配置对php的支持
+
+
+   
+   windos 环境 apache的命令   
+
+httpd -k install 
+将Apache注册为windows服务，可以指定的服务名为"apache"。
+ 
+httpd -k install -n "服务名"　
+将Apache注册为windows服务，自己指定一个服务名字。
+ 
+httpd -k install -n "服务名" -f "conf\my.conf"
+将Apache注册为windows服务，自己指定一个服务名字，并且使用特定配置文件。
+ 
+httpd.exe -k uninstall -n "MyServiceName"
+移除Apache服务，自己制定一个服务名字。
+
+httpd.exe -k start -n "MyServiceName"
+启动Apache服务。
+ 
+httpd.exe -k stop -n "MyServiceName" 或httpd.exe -k shutdown -n "MyServiceName"
+停止Apache服务。
+ 
+httpd.exe -k restart -n "MyServiceName"
+重启Apache服务。
+
+
+
+
 https 
   自签CA 证书  (使用openssl OR Java中的keytool生成)
     生成.csr ---> .crt   .cer 文件

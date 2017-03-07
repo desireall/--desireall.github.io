@@ -11,8 +11,6 @@ OTA
 
 部署apache 配置对php的支持
 
-
-   
    windos 环境 apache的命令   
 
 httpd -k install 
@@ -38,12 +36,11 @@ httpd.exe -k restart -n "MyServiceName"
 
 
 
-
 https 
   自签CA 证书  (使用openssl OR Java中的keytool生成)
     生成.csr ---> .crt   .cer 文件
 
---------2017.2.9 ~~ 2017.2.
+--------2017.2.9 ~~ 2017.2.28
 
 springmvc的文件上传功能  (用来存储上传的.ipa文件)       
     
@@ -73,7 +70,7 @@ springmvc的文件上传功能  (用来存储上传的.ipa文件)
 
      上传文件超出设置大小会抛出
            org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size of 100 bytes exceeded;
-     ！！了解springmvc 异常处理 返回 的几种方式
+     ！！TODO 了解springmvc 异常处理 返回 的几种方式
          
 
      servlet的多路传输转换功能(需要了解一下)
@@ -106,11 +103,10 @@ springmvc的文件上传功能  (用来存储上传的.ipa文件)
 
          web项目的路径问题
          
-
+未完
 
 
 --------2017.2.9 ~~ 2017.2.
-    
 
 了解 oAuth2.0
     
@@ -138,11 +134,58 @@ http2.0
 
 
 
+--------2017.3.7 ~~ 2017.3.20
+
+java 集合
+https://github.com/pzxwhc/MineKnowContainer/issues/75
+
+
+ ArrayList 不是线程安全的。那么 Vector 就可以看作是 ArrayList 的一个线程安全版本。由于也是实现了 List 接口，所以也是 可以插入空值，可以插入重复的值。 它和 HashTable 一样，是属于一种同步容器，而不是一种并发容器。（参考《Java并发编程实战》，类似CopyOnWriteArrayList，ConcurrentHashMap这种就属于并发容器）
+
+
+
+多线程
+并行 并发 同步 异步
+https://gist.github.com/yhben/5202572
+
+http://www.cnblogs.com/tracylining/p/3506673.html
 
 
 
 
 
+
+
+--------2017.3.20 ~~ 2017.3.20
+ mina 
+
+1.session 管理
+
+
+
+
+
+
+
+
+protobuf
+
+
+
+
+
+
+
+
+Spring、SpringMVC、Mybatis、servlet、Javascript、Jquery、Ajax、Webservice 
+
+MVC设计模式
+
+Tomcat、Apache，Nginx等应用和服务器配置
+
+shell脚本  mysql，Mongodb，sql优化；
+
+memcached， redis， rabbitMQ， dubbo/dubbox ，webservice等
 
 
 

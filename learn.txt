@@ -76,7 +76,7 @@ springmvc的文件上传功能  (用来存储上传的.ipa文件)
      servlet的多路传输转换功能(需要了解一下)
 
 
-     TODO 使用 springmvc 完成 类php-tot工具
+     使用 springmvc 完成 类php-tot工具
 
            java 解析 ipa文件
            https://my.oschina.net/heweipo/blog/382942
@@ -91,11 +91,11 @@ springmvc的文件上传功能  (用来存储上传的.ipa文件)
            http://rainbow702.iteye.com/blog/1553200
 
         1. 文件上传 下载 (文件上传  静态资源访问)
-        2. .ipa  .apk 文件的解析保存 (文件解压缩)
-        3. 界面优化
+        TODO  2. .ipa  .apk 文件的解析保存 (文件解压缩)
+        TODO  3. 界面优化
         4. 使用配置参数(properties)
 
-    ！！了解 springmvc 中配置的 mvc:annotation-driven 和 task:annotation-driven 的区别
+    ！！TODO 了解 springmvc 中配置的 mvc:annotation-driven 和 task:annotation-driven 的区别
          
          所有的自定义命名空间（像mvc，context等）下的标签解析都是由BeanDefinitionParser接口的子类来完成
          
@@ -104,6 +104,40 @@ springmvc的文件上传功能  (用来存储上传的.ipa文件)
          web项目的路径问题
          
 未完
+
+--------2017.3.7 ~~ 2017.3.20
+
+java 集合
+https://github.com/pzxwhc/MineKnowContainer/issues/75
+
+ArrayList 不是线程安全的。那么 Vector 就可以看作是 ArrayList 的一个线程安全版本。由于也是实现了 List 接口，所以也是 可以插入空值，可以插入重复的值。 它和 HashTable 一样，是属于一种同步容器，而不是一种并发容器。（参考《Java并发编程实战》，类似CopyOnWriteArrayList，ConcurrentHashMap这种就属于并发容器）
+
+
+集合操作优化
+https://www.ibm.com/developerworks/cn/java/j-lo-set-operation/index.html
+
+
+ConcurrentHashMap
+
+https://www.ibm.com/developerworks/cn/java/java-lo-concurrenthashmap/
+
+
+多线程
+并行 并发 同步 异步
+https://gist.github.com/yhben/5202572
+
+http://www.cnblogs.com/tracylining/p/3506673.html
+
+
+
+----------------------第三方登录-------------------------
+   TODO  httpclient-4.5.1.jar  中 对https 协议的支持
+         httpasyncclient-4.1.1.jar
+
+ Java的异步HttpClient   http://www.cnblogs.com/guogangj/p/5462594.html
+
+使用httpclient通过post发送json https://www.iteblog.com/archives/1379.html
+
 
 
 --------2017.2.9 ~~ 2017.2.
@@ -134,32 +168,10 @@ http2.0
 
 
 
---------2017.3.7 ~~ 2017.3.20
-
-java 集合
-https://github.com/pzxwhc/MineKnowContainer/issues/75
-
-
- ArrayList 不是线程安全的。那么 Vector 就可以看作是 ArrayList 的一个线程安全版本。由于也是实现了 List 接口，所以也是 可以插入空值，可以插入重复的值。 它和 HashTable 一样，是属于一种同步容器，而不是一种并发容器。（参考《Java并发编程实战》，类似CopyOnWriteArrayList，ConcurrentHashMap这种就属于并发容器）
-
-
-
-多线程
-并行 并发 同步 异步
-https://gist.github.com/yhben/5202572
-
-http://www.cnblogs.com/tracylining/p/3506673.html
-
-
-
-
-
-
-
 --------2017.3.20 ~~ 2017.3.20
  mina 
 
-1.session 管理
+ 1. 解析 处理 http 消息
 
 
 
@@ -391,16 +403,20 @@ github
      3.解决冲突    ！！！
         http://blog.csdn.net/u012150179/article/details/14047183
 
-
-
+     git add命令详解   
+         http://hubingforever.blog.163.com/blog/static/171040579201231110371044/
 
 
 jetty
+ 
+ https://www.ibm.com/developerworks/cn/web/wa-lo-jetty/
 
 
-
-
-
+guava
+        --- 缓存使用 guava-18.0.jar   
+    TODO 了解    http://ifeve.com/google-guava/
+        https://github.com/tdziurko/Guava-Lessons
+ 
 
 netty
   基于netty的websocket
@@ -410,5 +426,17 @@ netty
 
 
 
+mysql 
+  存储过程
+  sysdate() - INTERVAL 10 MINUTE    // 当前时间 - 10 分钟
 
+
+  类型
+  decimal  
+
+
+
+
+steve pavlina
+http://www.stevepavlinachina.com/archives.html
 
